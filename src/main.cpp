@@ -62,3 +62,4 @@ static void capFrameRate(long *then, float *remainder)
 	
 	*then = SDL_GetTicks();
 }
+

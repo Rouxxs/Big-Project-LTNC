@@ -7,11 +7,16 @@ class GameStage : public Game
 {
 public: 
     SDL_Texture *targetterTexture;
+    Entity entityHead, *entityTail;
+    Entity *player = new Entity;
 
-    GameStage() {}
     void initStage();
     void logic();
     void draw();
+    void initPlayer();
+    void doPlayer();
+    void doEntities();
+    void drawEntities();
 };
 
 #endif

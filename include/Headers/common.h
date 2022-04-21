@@ -10,8 +10,10 @@
 #include <algorithm>
 
 #include "const.h"
+#include "Entity.h"
 #include "Game.h"
 #include "GameStage.h"
+#include "util.h"
 
 
 #endif

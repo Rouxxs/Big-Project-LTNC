@@ -159,3 +159,16 @@ void Game::blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y)
 	
 	SDL_RenderCopy(renderer, texture, src, &dest);
 }
+
+void Game::blitRotated(SDL_Texture *texture, int x, int y, float angle)
+{
+	SDL_Rect dstRect;
+
+	dstRect.x = x;
+	dstRect.y = y;
+	SDL_QueryTexture(texture, NULL, NULL, &dstRect.w, &dstRect.h);
+	dstRect.x -= (dstRect.w / 2);
+	dstRect.y -= (dstRect.h / 2);
+
+	SDL_RenderCopyEx(renderer, texture, NULL, &dstRect, angle, NULL, SDL_FLIP_NONE);
+}

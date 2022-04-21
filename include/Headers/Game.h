@@ -17,9 +17,12 @@ public:
     Texture(std::string name_ = "", SDL_Texture *tex = NULL, Texture *n = NULL) {name = name_; texture = tex; next = n;}
 };
 
-struct Mouse
+class Mouse
 {
+public:
     int x, y;
+
+    Mouse(){x = 0; y = 0;}
 };
 
 class Game
@@ -27,10 +30,12 @@ class Game
 public:
     SDL_Renderer *renderer;
 	SDL_Window *window;
-    int keyboard[MAX_KEYBOARD_KEYS];
+    int keyboard[MAX_KEYBOARD_KEYS] = {0};
 	Mouse mouse;
 	Texture textureHead, *textureTail;
 
+    Game()
+    {}
     void initSDL();
     void initGame();
     void cleanup();
@@ -42,6 +47,7 @@ public:
     SDL_Texture *loadTexture(const char* filename);
     void blit(SDL_Texture *texture, int x, int y, int center);
     void blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y);
+    void blitRotated(SDL_Texture *texture, int x, int y, float angle);
 };
 
 
