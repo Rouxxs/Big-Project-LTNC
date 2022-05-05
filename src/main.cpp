@@ -14,8 +14,6 @@ int main(int argc, char *argv[])
 	
 	game.initSDL();
 	
-	game.initGame();
-	
 	game.initStage();
 	
 	then = SDL_GetTicks();

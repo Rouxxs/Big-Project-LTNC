@@ -10,32 +10,25 @@ void Game::initSDL()
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		printf("Couldn't initialize SDL: %s\n", SDL_GetError());
+		std::cout << "Failed to initialize SDL. Error: " << SDL_GetError() << std::endl;
 		exit(1);
 	}
 	
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
     {
-        printf("Couldn't initialize SDL Mixer\n");
+        std::cout << "Failed to initialize SDL Mixer. Error: " << SDL_GetError() << std::endl;
 		exit(1);
     }
 
     Mix_AllocateChannels(MAX_SND_CHANNELS);
 
-	window = SDL_CreateWindow("Battle Arena DONK! 1", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
-
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
 
     renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 	
 	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 	
 	SDL_ShowCursor(0);
-}
-
-void Game::initGame()
-{
-
 }
 
 void Game::cleanup()
@@ -62,17 +55,30 @@ void Game::doInput()
 				
 			case SDL_KEYDOWN:
 				if (event.key.repeat == 0 && event.key.keysym.scancode < MAX_KEYBOARD_KEYS)
-	            {
-		            keyboard[event.key.keysym.scancode] = 1;
-	            }
+					{
+						keyboard[event.key.keysym.scancode] = 1;
+					}
 				break;
 				
 			case SDL_KEYUP:
 				if (event.key.repeat == 0 && event.key.keysym.scancode < MAX_KEYBOARD_KEYS)
-	            {
-		            keyboard[event.key.keysym.scancode] = 0;
-	            }
+					{
+						keyboard[event.key.keysym.scancode] = 0;
+					}
 				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				mouse.button[event.button.button] = 1;
+				break;
+				
+			case SDL_MOUSEBUTTONUP:
+				mouse.button[event.button.button] = 0;
+				break;
+				
+			case SDL_MOUSEWHEEL:
+				mouse.wheel = event.wheel.y;
+				break;
+
 
 			default:
 				break;
@@ -123,7 +129,6 @@ SDL_Texture *Game::loadTexture(const char* filename)
 	
 	if (texture == NULL)
 	{
-		SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s ...", filename);
 		texture = IMG_LoadTexture(renderer, filename);
 		addTextureToCache(filename, texture);
 	}

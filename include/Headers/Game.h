@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <string>
+#include <iostream>
 
 #include "const.h"
 
@@ -21,7 +22,8 @@ class Mouse
 {
 public:
     int x, y;
-
+    int button[MAX_MOUSE_BUTTONS] = {0};
+	int wheel;
     Mouse(){x = 0; y = 0;}
 };
 
@@ -37,7 +39,6 @@ public:
     Game()
     {}
     void initSDL();
-    void initGame();
     void cleanup();
     void doInput();
     void prepareScene();
@@ -48,6 +49,10 @@ public:
     void blit(SDL_Texture *texture, int x, int y, int center);
     void blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y);
     void blitRotated(SDL_Texture *texture, int x, int y, float angle);
+    void doMouseButtonUp(SDL_MouseButtonEvent *event);
+    void doMouseButtonDown(SDL_MouseButtonEvent *event);
+    void doKeyUp(SDL_KeyboardEvent *event);
+    void doKeyDown(SDL_KeyboardEvent *event);
 };
 
 
