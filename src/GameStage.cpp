@@ -6,50 +6,62 @@ void GameStage::initStage()
 {
 	targetterTexture = loadTexture("gfx/targetter.png");
 
-	Bullet = loadTexture("gfx/Bullet.png");
+	bullet = loadTexture("gfx/Bullet.png");
 
 	fontTexture = loadTexture("gfx/font.png");
 
-	entityTail = &entityHead;
+	healthTexture = loadTexture("gfx/health.png");
+	uziTexture = loadTexture("gfx/uzi.png");
+	shotgunTexture = loadTexture("gfx/shotgun.png");
+
+	enemyTail = &enemyHead;
 
 	bulletTail = &bulletHead;
 
-	initPlayer();
+	itemTail = &itemHead;
 
+	score = 0;
+
+	enemySpawnTimer = 0;
+
+	initPlayer();
 }
 
 void GameStage::logic()
 {
 	doPlayer();
 
-	doEntities();
+	doEnemies();
 
 	doBullets();
+
+	spawnEnemy();
+
+	doItems();
+
 }
 
 void GameStage::draw()
 {
-	drawEntities();
+	blitRotated(player->texture, player->x, player->y, player->angle); // draw player
+	drawEnemies();
 	drawBullets();
+	drawItems();
 	drawHud();
 	blit(targetterTexture, mouse.x, mouse.y, 1);
 }
 
 void GameStage::initPlayer()
 {
-	
-	entityTail->next = player;
-	entityTail = player;
+	player = new Player;
 	
 	player->texture = loadTexture("gfx/Player.png");
 	player->health = 5;
+	player->radius = 24;
 	player->x = SCREEN_WIDTH / 2;
 	player->y = SCREEN_HEIGHT / 2;
 	player->weaponType = 0;
 
-	ammo[WPN_PISTOL] = 12;
-	ammo[WPN_UZI] = 100;
-	ammo[WPN_SHOTGUN] = 8;
 	
 	SDL_QueryTexture(player->texture, NULL, NULL, &player->w, &player->h);
 }
@@ -74,37 +86,15 @@ void GameStage::fireBullet()
 
 void GameStage::doPlayer()
 {
-	
-	player->dx *= 0.85;
-	player->dy *= 0.85;
-	
-	if (keyboard[SDL_SCANCODE_W])
-	{
-		player->dy = -PLAYER_SPEED;
-	}
-	
-	if (keyboard[SDL_SCANCODE_S])
-	{
-		player->dy = PLAYER_SPEED;
-	}
-	
-	if (keyboard[SDL_SCANCODE_A])
-	{
-		player->dx = -PLAYER_SPEED;
-	}
-	
-	if (keyboard[SDL_SCANCODE_D])
-	{
-		player->dx = PLAYER_SPEED;
-	}
-	
+	player->move(keyboard);
+
 	player->angle = getAngle(player->x, player->y, mouse.x, mouse.y);
 
-	if (player->reload == 0 && ammo[player->weaponType] > 0 && mouse.button[SDL_BUTTON_LEFT])
+	if (player->reload == 0 && player->ammo[player->weaponType] > 0 && mouse.button[SDL_BUTTON_LEFT])
 	{
 		fireBullet();
 		
-		ammo[player->weaponType]--;
+		player->ammo[player->weaponType]--;
 	}
 	
 	if (mouse.wheel < 0)
@@ -129,38 +119,58 @@ void GameStage::doPlayer()
 	
 	if (mouse.button[SDL_BUTTON_RIGHT])
 	{
-		if (player->weaponType == WPN_PISTOL && ammo[WPN_PISTOL] == 0)
+		if (player->weaponType == WPN_PISTOL && player->ammo[WPN_PISTOL] == 0)
 		{
-			ammo[WPN_PISTOL] = 12;
+			player->ammo[WPN_PISTOL] = 12;
 		}
 		
 		mouse.button[SDL_BUTTON_RIGHT] = 0;
 	}
+
+	
 }
 
-void GameStage::doEntities()
+void GameStage::doEnemies()
 {
-	Entity *e;
-	
-	for (e = entityHead.next ; e != NULL ; e = e->next)
+	Enemy *e, *prev;
+
+	prev = &enemyHead;
+
+	for (e = enemyHead.next ; e != NULL ; e = e->next)
 	{
+		e->move(player);
 		e->x += e->dx;
-		e->y += e->dy;
+    	e->y += e->dy;
 		
 		e->reload = MAX(e->reload - 1, 0);
-		if (e == player)
+		
+		if(e->health <= 0)
 		{
-			e->x = MIN(MAX(e->x, e->w / 2), SCREEN_WIDTH - e->w / 2);
-			e->y = MIN(MAX(e->y, e->h / 2), SCREEN_HEIGHT - e->h / 2);
+			if (rand() % 2 == 0)
+			{
+				addRandomItem(e->x, e->y);
+			}
+
+			score += 10;
+			if (e == enemyTail)
+			{
+				enemyTail = prev;
+			}
+			
+			prev->next = e->next;
+			delete e;
+			e = prev;
 		}
+		prev = e;
 	}
+	
 }
 
-void GameStage::drawEntities()
+void GameStage::drawEnemies()
 {
-	Entity *e;
+	Enemy *e;
 	
-	for (e = entityHead.next ; e != NULL ; e = e->next)
+	for (e = &enemyHead; e != NULL ; e = e->next)
 	{
 		blitRotated(e->texture, e->x, e->y, e->angle);
 	}
@@ -168,7 +178,7 @@ void GameStage::drawEntities()
 
 void GameStage::doBullets()
 {
-	Entity *b, *prev;
+	Bullet *b, *prev;
 	
 	prev = &bulletHead;
 	
@@ -177,6 +187,8 @@ void GameStage::doBullets()
 		b->x += b->dx;
 		b->y += b->dy;
 		
+		bulletHitEnemy(b);
+
 		if (--b->health <= 0)
 		{
 			if (b == bulletTail)
@@ -188,14 +200,37 @@ void GameStage::doBullets()
 			delete b;
 			b = prev;
 		}
-		
+
 		prev = b;
+	}
+}
+
+void GameStage::doItems()
+{
+	Item *i, *prev = &itemHead;
+
+	for (i = itemHead.next; i != NULL; i = i->next)
+	{
+		player->touchItem(i);
+		
+		if (--i->health <= 0)
+		{
+			if (i == itemTail)
+			{
+				itemTail = prev;
+			}
+			
+			prev->next = i->next;
+			delete i;
+			i = prev;
+		}
+		prev = i;
 	}
 }
 
 void GameStage::drawBullets()
 {
-	Entity *b;
+	Bullet *b;
 	
 	for (b = bulletHead.next ; b != NULL ; b = b->next)
 	{
@@ -203,18 +238,29 @@ void GameStage::drawBullets()
 	}
 }
 
+void GameStage::drawItems()
+{
+	
+	for (Item *i = &itemHead; i != NULL; i = i->next)
+	{
+		blit(i->texture, i->x, i->y, 0);
+	}
+
+}
+
 void GameStage::fireUzi()
 {
-	Entity *b = new Entity;
+	Bullet *b = new Bullet;
 	
 	bulletTail->next = b;
 	bulletTail = b;
 	
 	b->x = player->x;
 	b->y = player->y;
-	b->texture = Bullet;
+	b->texture = bullet;
 	b->health = FPS * 2;
 	b->angle = player->angle;
+	b->radius = 16;
 	
 	calcSlope(mouse.x, mouse.y, b->x, b->y, &b->dx, &b->dy);
 	
@@ -226,7 +272,7 @@ void GameStage::fireUzi()
 
 void GameStage::fireShotgun()
 {
-	Entity *b;
+	Bullet *b;
 	int i, destX, destY;
 	float dx, dy;
 	
@@ -237,16 +283,17 @@ void GameStage::fireShotgun()
 	
 	for (i = 0 ; i < 8 ; i++)
 	{
-		b = new Entity;
+		b = new Bullet;
 		
 		bulletTail->next = b;
 		bulletTail = b;
 		
 		b->x = player->x + rand() % 16 - rand() % 16;
 		b->y = player->y + rand() % 16 - rand() % 16;
-		b->texture = Bullet;
+		b->texture = bullet;
 		b->health = FPS * 2;
 		b->angle = player->angle;
+		b->radius = 16;
 		
 		destX = dx + (rand() % 24 - rand() % 24);
 		destY = dy + (rand() % 24 - rand() % 24);
@@ -262,16 +309,17 @@ void GameStage::fireShotgun()
 
 void GameStage::firePistol()
 {
-	Entity *b = new Entity;
+	Bullet *b = new Bullet;
 	
 	bulletTail->next = b;
 	bulletTail = b;
 	
 	b->x = player->x;
 	b->y = player->y;
-	b->texture = Bullet;
+	b->texture = bullet;
 	b->health = FPS * 2;
 	b->angle = player->angle;
+	b->radius = 16;
 	
 	calcSlope(mouse.x, mouse.y, b->x, b->y, &b->dx, &b->dy);
 	
@@ -336,18 +384,151 @@ void GameStage::drawWeaponInfo(const char* name, int type, int x, int y)
 		r = g = b = 255;
 	}
 	
-	drawText(x, y, r, g, b, TEXT_LEFT, name, 3, ammo[type]);
+	drawText(x, y, r, g, b, TEXT_LEFT, name, 3, player->ammo[type]);
 }
 
 void GameStage::drawHud()
 {
 	drawText(10, 10, 255, 255, 255, TEXT_LEFT, "HEALTH:", 2, player->health);
 	
-	drawText(250, 10, 255, 255, 255, TEXT_LEFT, "SCORE:", 5, 0);
+	drawText(250, 10, 255, 255, 255, TEXT_LEFT, "SCORE:", 5, score);
 	
 	drawWeaponInfo("PISTOL:", WPN_PISTOL, 550, 10);
 	
 	drawWeaponInfo("UZI:", WPN_UZI, 800, 10);
 	
 	drawWeaponInfo("SHOTGUN:", WPN_SHOTGUN, 1050, 10);
+}
+
+void GameStage::addEnemy(int x, int y)
+{
+	Enemy *e = new Enemy;
+
+	enemyTail->next = e;
+	enemyTail = e;
+
+	e->texture = loadTexture("gfx/enemy01.png");
+	e->health = 5;
+	e->x = x;
+	e->y = y;
+	SDL_QueryTexture(e->texture, NULL, NULL, &e->w, &e->h);
+	e->radius = 32;
+}
+
+ void GameStage::bulletHitEnemy(Bullet *b)
+{
+	Enemy *e;
+	int distance;
+
+	for (e = enemyHead.next ; e != NULL ; e = e->next)
+	{
+		distance = getDistance(e->x, e->y, b->x, b->y);
+
+		if (distance < e->radius + b->radius)
+		{
+			b->health = 0;
+			e->health--;
+			return;
+		}
+	}
+}
+
+void GameStage::spawnEnemy()
+{
+	int x, y;
+
+	if (--enemySpawnTimer <= 0)
+	{
+		switch (rand() % 4)
+		{
+			case 0:
+				x = -100;
+				y = rand() % SCREEN_HEIGHT;
+				break;
+
+			case 1:
+				x = SCREEN_WIDTH + 100;
+				y = rand() % SCREEN_HEIGHT;
+				break;
+
+			case 2:
+				x = rand() % SCREEN_WIDTH;
+				y = -100;
+				break;
+
+			case 3:
+				x = rand() % SCREEN_WIDTH;
+				y = SCREEN_HEIGHT + 100;
+				break;
+		}
+
+		addEnemy(x, y);
+
+		enemySpawnTimer = FPS + (rand() % FPS);
+	}
+}
+
+void GameStage::addRandomItem(int x, int y)
+{
+	int r;
+
+	r = rand() % 5;
+
+	if (r == 0)
+	{
+		addHealth(x, y);
+	}
+	else if (r < 3)
+	{
+		addUziBullet(x, y);
+	}
+	else
+	{
+		addShotgunBullet(x, y);
+	}
+}
+
+void GameStage::addHealth(int x, int y)
+{
+	Item *i = new Item;
+
+	itemTail->next = i;
+	itemTail = i;
+
+	i->x = x;
+	i->y = y;
+	i->type = HEATH_ITEM;
+	i->texture = healthTexture;
+	SDL_QueryTexture(i->texture, NULL, NULL, &i->w, &i->h);
+	i->radius = 16;
+}
+
+void GameStage::addUziBullet(int x, int y)
+{
+	Item *i = new Item;
+
+	itemTail->next = i;
+	itemTail = i;
+
+	i->x = x;
+	i->y = y;
+	i->type = UZI_ITEM;
+	i->texture = uziTexture;
+	SDL_QueryTexture(i->texture, NULL, NULL, &i->w, &i->h);
+	i->radius = 16;
+}
+
+void GameStage::addShotgunBullet(int x, int y)
+{
+	Item *i = new Item;
+
+	itemTail->next = i;
+	itemTail = i;
+
+	i->x = x;
+	i->y = y;
+	i->type = SHOTGUN_ITEM;
+	i->texture = shotgunTexture;
+	SDL_QueryTexture(i->texture, NULL, NULL, &i->w, &i->h);
+	i->radius = 16;
 }
