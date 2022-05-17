@@ -1,7 +1,5 @@
 #include "GameStage.h"
 
-
-
 void GameStage::initStage()
 {
 	targetterTexture = loadTexture("gfx/targetter.png");
@@ -11,14 +9,30 @@ void GameStage::initStage()
 	fontTexture = loadTexture("gfx/font.png");
 
 	healthTexture = loadTexture("gfx/health.png");
+
 	uziTexture = loadTexture("gfx/uzi.png");
+
 	shotgunTexture = loadTexture("gfx/shotgun.png");
+
+	gridTexture[0] = loadTexture("gfx/grid01.png");
+	gridTexture[1] = loadTexture("gfx/grid02.png");
+	gridTexture[2] = loadTexture("gfx/grid03.png");
+	gridTexture[3] = loadTexture("gfx/grid04.png");
+
+	enemyTexture[0] = loadTexture("gfx/enemy01.png");
+	enemyTexture[1] = loadTexture("gfx/enemy02.png");
+	enemyTexture[2] = loadTexture("gfx/enemy03.png");
+
+	sqr16 = loadTexture("gfx/whiteSquare16.png");
+	sqr8 = loadTexture("gfx/whiteSquare8.png");
 
 	enemyTail = &enemyHead;
 
 	bulletTail = &bulletHead;
 
 	itemTail = &itemHead;
+
+	effectTail = &effectHead;
 
 	score = 0;
 
@@ -28,7 +42,7 @@ void GameStage::initStage()
 }
 
 void GameStage::logic()
-{
+{	
 	doPlayer();
 
 	doEnemies();
@@ -39,16 +53,60 @@ void GameStage::logic()
 
 	doItems();
 
+	doCamera();
+	
+	doEffect();	
 }
 
 void GameStage::draw()
 {
-	blitRotated(player->texture, player->x, player->y, player->angle); // draw player
+	blitRotated(player->texture, player->x - camera.x, player->y - camera.y, player->angle); // draw player
+
 	drawEnemies();
+
 	drawBullets();
+
 	drawItems();
+
 	drawHud();
+
+	drawGrid();
+
 	blit(targetterTexture, mouse.x, mouse.y, 1);
+}
+
+void GameStage::drawGrid()
+{
+	int x1, x2, y1, y2, x, y, mx, my, n;
+
+	x1 = (camera.x % GRID_SIZE) * -1;
+	x2 = x1 + GRID_RENDER_WIDTH * GRID_SIZE + (x1 == 0 ? 0 : GRID_SIZE);
+
+	y1 = (camera.y % GRID_SIZE) * -1;
+	y2 = y1 + GRID_RENDER_HEIGHT * GRID_SIZE + (y1 == 0 ? 0 : GRID_SIZE);
+
+	mx = camera.x / GRID_SIZE;
+	my = camera.y / GRID_SIZE;
+
+	n = 0;
+
+	for (x = x1; x < x2; x += GRID_SIZE)
+	{
+		for (y = y1; y < y2; y += GRID_SIZE)
+		{
+			if (mx >= 0 && my >= 0 && mx <= (ARENA_WIDTH / GRID_SIZE) - 1 && my <= (ARENA_HEIGHT / GRID_SIZE) - 1)
+			{
+				n = ((mx * my) / 40) % 4;
+
+				blit(gridTexture[n], x, y, 0);
+			}
+
+			my++;
+		}
+
+		my = camera.y / GRID_SIZE;
+		mx++;
+	}
 }
 
 void GameStage::initPlayer()
@@ -60,9 +118,8 @@ void GameStage::initPlayer()
 	player->radius = 24;
 	player->x = SCREEN_WIDTH / 2;
 	player->y = SCREEN_HEIGHT / 2;
-	player->weaponType = 0;
+	player->weaponType = 0;	
 
-	
 	SDL_QueryTexture(player->texture, NULL, NULL, &player->w, &player->h);
 }
 
@@ -88,7 +145,7 @@ void GameStage::doPlayer()
 {
 	player->move(keyboard);
 
-	player->angle = getAngle(player->x, player->y, mouse.x, mouse.y);
+	player->angle = getAngle(player->x - camera.x, player->y - camera.y, mouse.x, mouse.y);
 
 	if (player->reload == 0 && player->ammo[player->weaponType] > 0 && mouse.button[SDL_BUTTON_LEFT])
 	{
@@ -139,13 +196,35 @@ void GameStage::doEnemies()
 	for (e = enemyHead.next ; e != NULL ; e = e->next)
 	{
 		e->move(player);
+		
 		e->x += e->dx;
     	e->y += e->dy;
 		
-		e->reload = MAX(e->reload - 1, 0);
-		
+		switch(rand() % 12)
+		{
+						
+			case 1:
+				fireType1(e);
+				break;
+
+			case 2:
+				fireType2(e);
+				break;
+
+			default:
+				fireType3(e);
+				break;			
+		}
+				
+		if(getDistance(player->x, player->y, e->x, e->y) < player->radius + e->radius)
+		{
+			player->health--;
+		}
+
 		if(e->health <= 0)
 		{
+			addEnemyDeathEffect(e);
+
 			if (rand() % 2 == 0)
 			{
 				addRandomItem(e->x, e->y);
@@ -172,7 +251,7 @@ void GameStage::drawEnemies()
 	
 	for (e = &enemyHead; e != NULL ; e = e->next)
 	{
-		blitRotated(e->texture, e->x, e->y, e->angle);
+		blitRotated(e->texture, e->x - camera.x, e->y - camera.y, e->angle);
 	}
 }
 
@@ -187,7 +266,7 @@ void GameStage::doBullets()
 		b->x += b->dx;
 		b->y += b->dy;
 		
-		bulletHitEnemy(b);
+		bulletHitEntity(b);
 
 		if (--b->health <= 0)
 		{
@@ -234,35 +313,48 @@ void GameStage::drawBullets()
 	
 	for (b = bulletHead.next ; b != NULL ; b = b->next)
 	{
-		blitRotated(b->texture, b->x, b->y, b->angle);
+		blitRotated(b->texture, b->x - camera.x, b->y - camera.y, b->angle);
 	}
 }
 
 void GameStage::drawItems()
 {
-	
-	for (Item *i = &itemHead; i != NULL; i = i->next)
+	Item *i;
+
+	for (i = &itemHead; i != NULL; i = i->next)
 	{
-		blit(i->texture, i->x, i->y, 0);
+		blit(i->texture, i->x - camera.x, i->y - camera.y, 0);
 	}
 
 }
 
-void GameStage::fireUzi()
+Bullet* GameStage::createBullet()
 {
-	Bullet *b = new Bullet;
-	
+	Bullet* b = new Bullet;
+
 	bulletTail->next = b;
 	bulletTail = b;
-	
+
 	b->x = player->x;
 	b->y = player->y;
 	b->texture = bullet;
 	b->health = FPS * 2;
 	b->angle = player->angle;
 	b->radius = 16;
+	b->side = SIDE_PLAYER;
+
+	SDL_QueryTexture(b->texture, NULL, NULL, &b->w, &b->h);
+	// b->color.r = 128;
+	// b->color.g = b->color.b = b->color.a = 255;
 	
-	calcSlope(mouse.x, mouse.y, b->x, b->y, &b->dx, &b->dy);
+	return b;
+}
+
+void GameStage::fireUzi()
+{
+	Bullet *b = createBullet();
+	
+	calcSlope(mouse.x, mouse.y, b->x - camera.x, b->y - camera.y, &b->dx, &b->dy);
 	
 	b->dx *= 16;
 	b->dy *= 16;
@@ -276,24 +368,14 @@ void GameStage::fireShotgun()
 	int i, destX, destY;
 	float dx, dy;
 	
-	calcSlope(mouse.x, mouse.y, player->x, player->y, &dx, &dy);
+	calcSlope(mouse.x, mouse.y, player->x - camera.x, player->y - camera.y, &dx, &dy);
 	
 	dx = player->x + (dx * 128);
 	dy = player->y + (dy * 128);
 	
 	for (i = 0 ; i < 8 ; i++)
 	{
-		b = new Bullet;
-		
-		bulletTail->next = b;
-		bulletTail = b;
-		
-		b->x = player->x + rand() % 16 - rand() % 16;
-		b->y = player->y + rand() % 16 - rand() % 16;
-		b->texture = bullet;
-		b->health = FPS * 2;
-		b->angle = player->angle;
-		b->radius = 16;
+		b = createBullet();
 		
 		destX = dx + (rand() % 24 - rand() % 24);
 		destY = dy + (rand() % 24 - rand() % 24);
@@ -309,24 +391,127 @@ void GameStage::fireShotgun()
 
 void GameStage::firePistol()
 {
-	Bullet *b = new Bullet;
+	Bullet *b = createBullet();
 	
-	bulletTail->next = b;
-	bulletTail = b;
-	
-	b->x = player->x;
-	b->y = player->y;
-	b->texture = bullet;
-	b->health = FPS * 2;
-	b->angle = player->angle;
-	b->radius = 16;
-	
-	calcSlope(mouse.x, mouse.y, b->x, b->y, &b->dx, &b->dy);
+	calcSlope(mouse.x, mouse.y, b->x - camera.x, b->y - camera.y, &b->dx, &b->dy);
 	
 	b->dx *= 16;
 	b->dy *= 16;
 	
 	player->reload = 16;
+}
+
+void GameStage::enemyFire(Enemy* e)
+{
+	Bullet* b = new Bullet;
+
+	bulletTail->next = b;
+	bulletTail = b;
+
+	b->x = e->x;
+	b->y = e->y;
+	b->texture = bullet;
+	b->health = FPS * 2;
+	b->angle = getAngle(e->x, e->y, player->x, player->y);
+	b->radius = 16;
+	b->side = SIDE_ENEMY;
+
+	SDL_QueryTexture(b->texture, NULL, NULL, &b->w, &b->h);
+	// b->color.r = 255;
+	// b->color.g = b->color.b = 0;
+	// b->color.a = 255;
+	
+	calcSlope(player->x, player->y, b->x, b->y, &b->dx, &b->dy);
+	
+	b->dx *= 12;
+	b->dy *= 12;
+}
+
+void GameStage::fireType1(Enemy *e)
+{
+	if (player != NULL)
+	{
+		e->angle = getAngle(e->x, e->y, player->x, player->y);
+
+		calcSlope(player->x, player->y, e->x, e->y, &e->dx, &e->dy);
+
+		e->reload = MAX(e->reload - 1, 0);
+
+		if (e->reload <= 0 && getDistance(e->x, e->y, player->x, player->y) < SCREEN_HEIGHT / 2)
+		{
+			enemyFire(e);
+
+			e->reload = FPS * 3;
+		}
+	}
+}
+
+void GameStage::fireType2(Enemy *e)
+{
+	float dx, dy;
+	
+	if (++e->angle >= 360)
+	{
+		e->angle = 0;
+	}
+	
+	if (player != NULL)
+	{
+		calcSlope(player->x, player->y, e->x, e->y, &dx, &dy);
+		
+		dx /= 10;
+		dy /= 10;
+		
+		e->dx += dx;
+		e->dy += dy;
+		
+		e->dx = MAX(MIN(e->dx, 3), -3);
+		e->dy = MAX(MIN(e->dy, 3), -3);
+		
+		e->reload = MAX(e->reload - 1, 0);
+		
+		if (e->reload <= 0 && getDistance(e->x, e->y, player->x, player->y) < SCREEN_HEIGHT / 2)
+		{
+			enemyFire(e);
+			
+			e->reload = FPS / 2;
+		}
+	}
+}
+
+void GameStage::fireType3(Enemy *e)
+{
+	float dx, dy;
+	
+	e->angle -= 5;
+	
+	if (e->angle < 0)
+	{
+		e->angle = 359;
+	}
+	
+	if (player != NULL)
+	{
+		calcSlope(player->x, player->y, e->x, e->y, &dx, &dy);
+		
+		dx /= 10;
+		dy /= 10;
+		
+		e->dx += dx;
+		e->dy += dy;
+		
+		e->dx = MAX(MIN(e->dx, 5), -5);
+		e->dy = MAX(MIN(e->dy, 5), -5);
+		
+		e->reload = MAX(e->reload - 1, 0);
+		
+		if (e->reload <= 0 && getDistance(e->x, e->y, player->x, player->y) < SCREEN_HEIGHT)
+		{
+			enemyFire(e);
+			
+			e->reload = FPS * 3;
+		}
+	}
 }
 
 void GameStage::drawText(int x, int y, int r, int g, int b, int align, const char* text, int w, int number)
@@ -407,27 +592,60 @@ void GameStage::addEnemy(int x, int y)
 	enemyTail->next = e;
 	enemyTail = e;
 
-	e->texture = loadTexture("gfx/enemy01.png");
-	e->health = 5;
-	e->x = x;
-	e->y = y;
+	switch (rand() % 12)
+	{
+		case 0:
+			e->texture = enemyTexture[1];
+			e->x = x;
+			e->y = y;
+			e->radius = 35;
+			e->health = 25;
+			break;
+			
+		case 1:
+			e->texture = enemyTexture[2];
+			e->x = x;
+			e->y = y;
+			e->radius = 26;
+			e->health = 2;
+			break;
+			
+		default:
+			e->texture = enemyTexture[0];
+			e->x = x;
+			e->y = y;
+			e->radius = 32;
+			e->health = 5;
+			break;
+	}
+	
 	SDL_QueryTexture(e->texture, NULL, NULL, &e->w, &e->h);
-	e->radius = 32;
 }
 
- void GameStage::bulletHitEnemy(Bullet *b)
+ void GameStage::bulletHitEntity(Bullet *b)
 {
 	Enemy *e;
-	int distance;
 
-	for (e = enemyHead.next ; e != NULL ; e = e->next)
+	if(b->side == SIDE_PLAYER)
 	{
-		distance = getDistance(e->x, e->y, b->x, b->y);
+		for (e = enemyHead.next ; e != NULL ; e = e->next)
+		{
 
-		if (distance < e->radius + b->radius)
+			if (getDistance(e->x, e->y, b->x, b->y) < e->radius + b->radius)
+			{
+				addBulletHitEffect(e);
+				b->health = 0;
+				e->health--;
+				return;
+			}
+		}
+	}
+	else if(b->side == SIDE_ENEMY)
+	{
+		if(getDistance(player->x, player->y, b->x, b->y) < player->radius + b->radius)
 		{
 			b->health = 0;
-			e->health--;
+			player->health--;
 			return;
 		}
 	}
@@ -436,36 +654,20 @@ void GameStage::addEnemy(int x, int y)
 void GameStage::spawnEnemy()
 {
 	int x, y;
-
-	if (--enemySpawnTimer <= 0)
+	
+	if (player != NULL && --enemySpawnTimer <= 0)
 	{
-		switch (rand() % 4)
+		x = player->x + (rand() % SCREEN_WIDTH) - (rand() % SCREEN_WIDTH);
+		y = player->y + (rand() % SCREEN_HEIGHT) - (rand() % SCREEN_HEIGHT);
+		
+		if (getDistance(x, y, player->x, player->y) > SCREEN_WIDTH / 2)
 		{
-			case 0:
-				x = -100;
-				y = rand() % SCREEN_HEIGHT;
-				break;
-
-			case 1:
-				x = SCREEN_WIDTH + 100;
-				y = rand() % SCREEN_HEIGHT;
-				break;
-
-			case 2:
-				x = rand() % SCREEN_WIDTH;
-				y = -100;
-				break;
-
-			case 3:
-				x = rand() % SCREEN_WIDTH;
-				y = SCREEN_HEIGHT + 100;
-				break;
+			addEnemy(x, y);
+			
+			enemySpawnTimer = (FPS * 2) + rand() % FPS;
 		}
-
-		addEnemy(x, y);
-
-		enemySpawnTimer = FPS + (rand() % FPS);
 	}
+
 }
 
 void GameStage::addRandomItem(int x, int y)
@@ -531,4 +733,177 @@ void GameStage::addShotgunBullet(int x, int y)
 	i->texture = shotgunTexture;
 	SDL_QueryTexture(i->texture, NULL, NULL, &i->w, &i->h);
 	i->radius = 16;
+}
+
+void GameStage::doCamera()
+{
+	if (player != NULL)
+	{
+		camera.x = player->x - (SCREEN_WIDTH / 2);
+		camera.y = player->y - (SCREEN_HEIGHT / 2);
+	}
+}
+
+void GameStage::doEffect()
+{
+	Effect *e, *prev;
+	
+	prev = &effectHead;
+	
+	for (e = effectHead.next ; e != NULL ; e = e->next)
+	{
+		e->x += e->dx;
+		e->y += e->dy;
+		
+		//e->color.a = MAX(e->color.a - 1, 0);
+		
+		if (--e->life <= 0)
+		{
+			if (e == effectTail)
+			{
+				effectTail = prev;
+			}
+			
+			prev->next = e->next;
+			delete e;
+			e = prev;
+		}
+		
+		prev = e;
+	}
+}
+
+void GameStage::drawEffect()
+{
+	Effect *e;
+	
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+	
+	for (e = effectHead.next ; e != NULL ; e = e->next)
+	{
+		SDL_SetTextureBlendMode(e->texture, SDL_BLENDMODE_ADD);
+		
+		SDL_SetTextureColorMod(e->texture, 0, 255, 255);
+		SDL_SetTextureAlphaMod(e->texture, 0);
+		
+		blit(e->texture, e->x - camera.x, e->y - camera.y, 1);
+	}
+	
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+}
+
+void GameStage::addEnemyDeathEffect(Enemy* enemy)
+{
+	Effect *e;
+	
+	for (int i = 0 ; i < 128 ; i++)
+	{
+		e = new Effect;
+		effectTail->next = e;
+		effectTail = e;
+		
+		e->x = enemy->x;
+		e->y = enemy->y;
+		e->dx = 400 - rand() % 800;
+		e->dy = 400 - rand() % 800;
+		
+		e->dx /= 100;
+		e->dy /= 100;
+		
+		e->texture = sqr16;
+		
+		// e->color.r = 255;
+		// e->color.g = 128 + rand() % 128;
+		// e->color.b = 0;
+		// e->color.a = rand() % 255;
+		
+		e->life = rand() % FPS;
+	}
+}
+
+// void GameStage::addPlayerDeathEffect()
+// {
+// 	Effect *e;
+// 	int i;
+	
+// 	for (i = 0 ; i < 128 ; i++)
+// 	{
+// 		e = new Effect;
+// 		effectTail->next = e;
+// 		effectTail = e;
+		
+// 		e->x = enemy->x;
+// 		e->y = enemy->y;
+// 		e->dx = 400 - rand() % 800;
+// 		e->dy = 400 - rand() % 800;
+		
+// 		e->dx /= 100;
+// 		e->dy /= 100;
+		
+// 		e->texture = sqr16;
+		
+// 		// e->color.r = rand() % 128;
+// 		// e->color.g = 128 + rand() % 128;
+// 		// e->color.b = 255;
+// 		// e->color.a = rand() % 255;
+		
+// 		e->life = rand() % FPS;
+// 	}
+// }
+
+void GameStage::addBulletHitEffect(Enemy* enemy)
+{
+	Effect *e;
+	
+	for (int i = 0 ; i < 16 ; i++)
+	{
+		e = new Effect;
+		effectTail->next = e;
+		effectTail = e;
+		
+		e->x = enemy->x;
+		e->y = enemy->y;
+		e->dx = 400 - rand() % 800;
+		e->dy = 400 - rand() % 800;
+		
+		e->dx /= 100;
+		e->dy /= 100;
+		
+		e->texture = sqr16;
+		
+		//e->color = enemy->color;
+		
+		//e->color.a = rand() % 255;
+		
+		e->life = rand() % FPS;
+	}
+}
+
+void GameStage::doEnemyEffect(Enemy* enemy)
+{
+	Effect *e;
+
+	for (int i = 0 ; i < 128 ; i++)
+	{
+		e = new Effect;
+		effectTail->next = e;
+		effectTail = e;
+
+		e->x = enemy->x;
+		e->y = enemy->y;
+		e->dx = 400 - rand() % 800;
+		e->dy = 400 - rand() % 800;
+
+		e->dx /= 100;
+		e->dy /= 100;
+
+		e->texture = sqr16;
+
+		// e->color.r = 255;
+		// e->color.g = 128 + rand() % 128;
+		// e->color.b = 0;
+		// e->color.a = rand() % 255;
+
+		e->life = rand() % FPS;
+	}
 }
