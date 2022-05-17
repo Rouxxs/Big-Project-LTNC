@@ -23,3 +23,13 @@ void calcSlope(int x1, int y1, int x2, int y2, float *dx, float *dy)
 	*dy = (y1 - y2);
 	*dy /= steps;
 }
+
+int getDistance(int x1, int y1, int x2, int y2)
+{
+	int x, y;
+
+	x = x2 - x1;
+	y = y2 - y1;
+
+	return sqrt(x * x + y *y);
+}

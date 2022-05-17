@@ -41,4 +41,18 @@ enum
 	WPN_SHOTGUN,
 	WPN_MAX
 };
+
+enum
+{
+	SIDE_NONE,
+	SIDE_PLAYER,
+	SIDE_ENEMY
+};
+
+enum
+{
+	HEATH_ITEM,
+	UZI_ITEM,
+	SHOTGUN_ITEM
+};
 #endif

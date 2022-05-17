@@ -9,8 +9,12 @@
 #include <cmath>
 #include <algorithm>
 
-#include "const.h"
 #include "Entity.h"
+#include "Bullet.h"
+#include "Player.h"
+#include "Enemy.h"
+#include "Item.h"
+#include "const.h"
 #include "Game.h"
 #include "GameStage.h"
 #include "util.h"
