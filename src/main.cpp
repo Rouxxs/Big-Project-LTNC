@@ -10,8 +10,6 @@ int main(int argc, char *argv[])
 
     GameStage game;
 
-	game.textureTail = &game.textureHead;
-	
 	game.initSDL();
 	
 	game.initStage();

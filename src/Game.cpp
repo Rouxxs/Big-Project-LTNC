@@ -99,40 +99,12 @@ void Game::presentScene()
 	SDL_RenderPresent(renderer);
 }
 
-SDL_Texture *Game::getTexture(std::string name)
-{
-	Texture *t;
-	
-	for (t = textureHead.next ; t != NULL ; t = t->next)
-	{
-		if (t->name == name)
-		{
-			return t->texture;
-		}
-	}
-	
-	return NULL;
-}
-
-void Game::addTextureToCache(std::string name, SDL_Texture *Tex)
-{
-	Texture *texture = new Texture(name, Tex);
-	textureTail->next = texture;
-	//textureTail = texture;
-}
-
 SDL_Texture *Game::loadTexture(const char* filename)
 {
 	SDL_Texture *texture;
-	
-	texture = getTexture(filename);
-	
+	texture = IMG_LoadTexture(renderer, filename);
 	if (texture == NULL)
-	{
-		texture = IMG_LoadTexture(renderer, filename);
-		addTextureToCache(filename, texture);
-	}
-
+		std::cout << "Failed to load IMG: " << filename << std::endl;
 	return texture;
 }
 

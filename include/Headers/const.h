@@ -7,6 +7,9 @@
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720; 
 
+const int ARENA_WIDTH = (SCREEN_WIDTH * 5);
+const int ARENA_HEIGHT = (SCREEN_HEIGHT * 5);
+
 const int MAX_NAME_LENGTH = 32;
 
 const int MAX_KEYBOARD_KEYS = 350;
@@ -24,6 +27,9 @@ const int WORD_WIDTH = 18;
 const int WORD_HEIGHT = 29;
 
 const int GRID_SIZE = 64;
+
+const int GRID_RENDER_WIDTH = (SCREEN_WIDTH / GRID_SIZE);
+const int GRID_RENDER_HEIGHT = ((SCREEN_HEIGHT / GRID_SIZE) + 1);
 
 const int GLYPH_WIDTH = 18;
 const int GLYPH_HEIGHT = 29;

@@ -9,15 +9,6 @@
 
 #include "const.h"
 
-class Texture 
-{
-public:
-	std::string name;
-	SDL_Texture *texture;
-	Texture *next;
-    Texture(std::string name_ = "", SDL_Texture *tex = NULL, Texture *n = NULL) {name = name_; texture = tex; next = n;}
-};
-
 class Mouse
 {
 public:
@@ -34,7 +25,6 @@ public:
 	SDL_Window *window;
     int keyboard[MAX_KEYBOARD_KEYS] = {0};
 	Mouse mouse;
-	Texture textureHead, *textureTail;
 
     Game()
     {}
@@ -43,8 +33,6 @@ public:
     void doInput();
     void prepareScene();
     void presentScene();
-    SDL_Texture *getTexture(std::string name);
-    void addTextureToCache(std::string name, SDL_Texture *Tex);
     SDL_Texture *loadTexture(const char* filename);
     void blit(SDL_Texture *texture, int x, int y, int center);
     void blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y);

@@ -1,15 +1,5 @@
 #include "Player.h"
 
-Player::Player()
-: Entity(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL)
-{
-    weaponType = 0;
-
-	ammo[WPN_PISTOL] = 12; 
-	ammo[WPN_UZI] = 100;
-	ammo[WPN_SHOTGUN] = 8;
-}
-
 void Player::move(int keyboard[])
 {
 	dx *= 0.85;
@@ -34,12 +24,10 @@ void Player::move(int keyboard[])
 	{
 		dx = PLAYER_SPEED;
 	}
-
-	x = MIN(MAX(x, w / 2), SCREEN_WIDTH - w / 2);
-	y = MIN(MAX(y, h / 2), SCREEN_HEIGHT - h / 2);
 	x += dx;
 	y += dy;
-		
+	x = MIN(MAX(x, w / 2), ARENA_WIDTH - w / 2);
+	y = MIN(MAX(y, h / 2), ARENA_HEIGHT - h / 2);
 	reload = MAX(reload - 1, 0);
 }
 
