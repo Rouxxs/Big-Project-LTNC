@@ -23,12 +23,11 @@ class Game
 public:
     SDL_Renderer *renderer;
 	SDL_Window *window;
-    int keyboard[MAX_KEYBOARD_KEYS] = {0};
+    int keyboard[MAX_KEYBOARD_KEYS];
 	Mouse mouse;
+    bool check;
 
-    Game()
-    {}
-    void initSDL();
+    Game();
     void cleanup();
     void doInput();
     void prepareScene();

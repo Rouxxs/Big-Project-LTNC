@@ -1,5 +1,20 @@
 #include "Player.h"
 
+Player::Player()
+{
+	health = 20;
+	radius = 24;
+	x = SCREEN_WIDTH / 2;
+	y = SCREEN_HEIGHT / 2;
+	weaponType = 0;
+	ammo[WPN_PISTOL] = 12;
+	ammo[WPN_UZI] = 100;
+	ammo[WPN_SHOTGUN] = 8;
+	w = 100;
+	h = 100;
+	radius = 24;
+	color.r = color.g = color.b = color.a = 255;
+}
 void Player::move(int keyboard[])
 {
 	dx *= 0.85;

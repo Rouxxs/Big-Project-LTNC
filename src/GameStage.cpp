@@ -1,8 +1,11 @@
 #include "GameStage.h"
 
-void GameStage::initStage()
+GameStage::GameStage()
 {
 	targetterTexture = loadTexture("gfx/targetter.png");
+
+	playerTex1 = loadTexture("gfx/Player.png");
+	playerTex2 = loadTexture("gfx/Player_shoot.png");
 
 	bullet = loadTexture("gfx/Bullet.png");
 	enemyBullet = loadTexture("gfx/enemyBullet.png");
@@ -39,7 +42,8 @@ void GameStage::initStage()
 
 	enemySpawnTimer = 0;
 
-	initPlayer();
+	player = new Player;
+	player->texture = playerTex1;
 }
 
 void GameStage::logic()
@@ -112,20 +116,6 @@ void GameStage::drawGrid()
 	}
 }
 
-void GameStage::initPlayer()
-{
-	player = new Player;
-	
-	player->texture = loadTexture("gfx/Player.png");
-	player->health = 20;
-	player->radius = 24;
-	player->x = SCREEN_WIDTH / 2;
-	player->y = SCREEN_HEIGHT / 2;
-	player->weaponType = 0;	
-
-	SDL_QueryTexture(player->texture, NULL, NULL, &player->w, &player->h);
-}
-
 void GameStage::fireBullet()
 {
 	switch (player->weaponType)
@@ -146,6 +136,11 @@ void GameStage::fireBullet()
 
 void GameStage::doPlayer()
 {
+	if (check == true) 
+		player->texture = playerTex2;
+	else
+		player->texture = playerTex1;
+
 	player->move(keyboard);
 
 	player->angle = getAngle(player->x - camera.x, player->y - camera.y, mouse.x, mouse.y);	
@@ -187,12 +182,18 @@ void GameStage::doPlayer()
 		mouse.button[SDL_BUTTON_RIGHT] = 0;
 	}
 
-	
+	if (player->health == 0)
+	{
+		delete player;
+		addPlayerDeathEffect();
+	}
 }
 
 void GameStage::doEnemies()
 {
 	Enemy *e, *prev;
+
+	bool check = false;
 
 	prev = &enemyHead;
 
@@ -217,11 +218,6 @@ void GameStage::doEnemies()
 			default:
 				fireType3(e);
 				break;			
-		}
-				
-		if(getDistance(player->x, player->y, e->x, e->y) < player->radius + e->radius)
-		{
-			player->health--;
 		}
 
 		if(e->health <= 0)
@@ -739,35 +735,38 @@ void GameStage::addShotgunBullet(int x, int y)
 
 void GameStage::doCamera()
 {
-	camera.x = player->x - (SCREEN_WIDTH / 2);
-	camera.y = player->y - (SCREEN_HEIGHT / 2);
-	
-	if(player->x < SCREEN_WIDTH/2 + GRID_SIZE/2 && player->y < SCREEN_HEIGHT/2 + GRID_SIZE/2)
+	if(player != NULL)
 	{
-		camera.x = GRID_SIZE/2;
-		camera.y = GRID_SIZE/2;
-	}
-	else if (player->x < SCREEN_WIDTH/2 + GRID_SIZE/2) 
-	{
-		camera.x = GRID_SIZE/2;
-	}
-	else if (player->y < SCREEN_HEIGHT/2 + GRID_SIZE/2)
-	{
-		camera.y = GRID_SIZE/2;
-	}
+		camera.x = player->x - (SCREEN_WIDTH / 2);
+		camera.y = player->y - (SCREEN_HEIGHT / 2);
+		
+		if(player->x < SCREEN_WIDTH/2 + GRID_SIZE/2 && player->y < SCREEN_HEIGHT/2 + GRID_SIZE/2)
+		{
+			camera.x = GRID_SIZE/2;
+			camera.y = GRID_SIZE/2;
+		}
+		else if (player->x < SCREEN_WIDTH/2 + GRID_SIZE/2) 
+		{
+			camera.x = GRID_SIZE/2;
+		}
+		else if (player->y < SCREEN_HEIGHT/2 + GRID_SIZE/2)
+		{
+			camera.y = GRID_SIZE/2;
+		}
 
-	if (player->x > ARENA_WIDTH - SCREEN_WIDTH/2 - GRID_SIZE/2 && player->y > ARENA_HEIGHT - SCREEN_HEIGHT/2 - GRID_SIZE/2)
-	{
-		camera.x = ARENA_WIDTH - SCREEN_WIDTH - GRID_SIZE/2;
-		camera.y = ARENA_HEIGHT - SCREEN_HEIGHT - GRID_SIZE/2;
-	}
-	else if (player->x > ARENA_WIDTH - SCREEN_WIDTH/2 - GRID_SIZE/2)
-	{
-		camera.x = ARENA_WIDTH - SCREEN_WIDTH - GRID_SIZE/2;
-	}
-	else if(player->y > ARENA_HEIGHT - SCREEN_HEIGHT/2 - GRID_SIZE/2)
-	{
-		camera.y = ARENA_HEIGHT - SCREEN_HEIGHT - GRID_SIZE/2;
+		if (player->x > ARENA_WIDTH - SCREEN_WIDTH/2 - GRID_SIZE/2 && player->y > ARENA_HEIGHT - SCREEN_HEIGHT/2 - GRID_SIZE/2)
+		{
+			camera.x = ARENA_WIDTH - SCREEN_WIDTH - GRID_SIZE/2;
+			camera.y = ARENA_HEIGHT - SCREEN_HEIGHT - GRID_SIZE/2;
+		}
+		else if (player->x > ARENA_WIDTH - SCREEN_WIDTH/2 - GRID_SIZE/2)
+		{
+			camera.x = ARENA_WIDTH - SCREEN_WIDTH - GRID_SIZE/2;
+		}
+		else if(player->y > ARENA_HEIGHT - SCREEN_HEIGHT/2 - GRID_SIZE/2)
+		{
+			camera.y = ARENA_HEIGHT - SCREEN_HEIGHT - GRID_SIZE/2;
+		}
 	}
 
 }

@@ -9,10 +9,6 @@ int main(int argc, char *argv[])
 	float remainder;
 
     GameStage game;
-
-	game.initSDL();
-	
-	game.initStage();
 	
 	then = SDL_GetTicks();
 	

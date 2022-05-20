@@ -10,6 +10,7 @@ class GameStage : public Game
 {
 public: 
     SDL_Texture *targetterTexture;
+    SDL_Texture *playerTex1, *playerTex2;
     SDL_Texture *bullet;
     SDL_Texture *enemyBullet;
     SDL_Texture *fontTexture;
@@ -32,8 +33,7 @@ public:
     
     int enemySpawnTimer;
 
-    void initStage();
-    void initPlayer();
+    GameStage();
 
     void logic();
     void draw();

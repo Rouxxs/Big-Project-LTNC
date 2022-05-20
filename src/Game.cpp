@@ -1,7 +1,12 @@
 #include "Game.h"
 
-void Game::initSDL()
+Game::Game()
 {
+	for(int i = 0; i < MAX_KEYBOARD_KEYS; i++)
+		keyboard[i] = 0;
+
+	check = false;
+
     int rendererFlags, windowFlags;
 
 	rendererFlags = SDL_RENDERER_ACCELERATED;
@@ -68,10 +73,12 @@ void Game::doInput()
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
+				check = true;
 				mouse.button[event.button.button] = 1;
 				break;
 				
 			case SDL_MOUSEBUTTONUP:
+				check = false;
 				mouse.button[event.button.button] = 0;
 				break;
 				
