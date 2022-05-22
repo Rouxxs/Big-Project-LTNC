@@ -1,4 +1,4 @@
-1. Cài đặt và sử dụng:
+## 1. Cài đặt và sử dụng:
 Sử dụng lệnh git clone để clone game về máy.
 
 Ở terminal 
@@ -20,7 +20,7 @@ make run
 ```
 để dịch và chạy chương trình.
 
-2. Mô tả:
+## 2. Mô tả:
 Ở phần menu:
 Ấn chuột trái để vào chơi.
 
@@ -48,7 +48,7 @@ Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm 
 
 ( link youtube : )
 
-3. Kĩ thuật lập trình:
+## 3. Kĩ thuật lập trình:
 (*)sử dụng thư viện SDL.h, render ảnh theo lớp, nhân vật bằng thư viện SDL_image, load audio bằng thư viện SDL_Mixer.
 
 (*)làm cho nhân vật chuyển động dựa trên toạ độ và góc xoay camera.
