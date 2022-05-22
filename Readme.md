@@ -29,7 +29,7 @@ Khi giết chết quái sẽ rơi ra các bao đạn và máu, đi vào sẽ đ�
 
 Ngẫu nhiên sẽ có các điểm thưởng trên bản đồ, khi đi vào ta sẽ được nhận điểm ngẫu nhiên.
 
-Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh.
+Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh. Sau khi ghi danh bấm Enter để trở lại màn hình chính.
 
 ( link youtube : )
 
