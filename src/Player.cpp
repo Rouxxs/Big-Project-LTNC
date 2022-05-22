@@ -2,7 +2,7 @@
 
 Player::Player()
 {
-	health = 1;
+	health = 10;
 	radius = 24;
 	x = SCREEN_WIDTH / 2;
 	y = SCREEN_HEIGHT / 2;

@@ -59,6 +59,7 @@ public:
     void doItems();
     void doCamera();
     void doEnemyEffect(Enemy* enemy);
+    void bulletHitPlayerEffect();
     void doEffect();
 
     void drawEnemies();
@@ -80,7 +81,6 @@ public:
 
     void addEnemy(int x, int y);
 
-    void bulletHitEnemy(Bullet *b);
     void spawnEnemy();
     void addRandomItem(int x, int y);
     void addHealth(int x, int y);
@@ -105,6 +105,15 @@ public:
     void drawInputName();
     void drawHighscores();
     void addHighscore(int score);
+
+    Mix_Chunk *sounds[SND_MAX];
+    Mix_Music *music;
+
+    void initSounds();
+    void loadMusic(const char *filename);
+    void playMusic(int loop);
+    void playSound(int id, int channel);
+    void loadSounds();
 };
 
 #endif
