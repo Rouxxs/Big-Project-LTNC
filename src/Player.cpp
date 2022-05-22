@@ -2,7 +2,7 @@
 
 Player::Player()
 {
-	health = 20;
+	health = 1;
 	radius = 24;
 	x = SCREEN_WIDTH / 2;
 	y = SCREEN_HEIGHT / 2;
@@ -14,6 +14,7 @@ Player::Player()
 	h = 100;
 	radius = 24;
 	color.r = color.g = color.b = color.a = 255;
+	score = 0;
 }
 void Player::move(int keyboard[])
 {
@@ -68,7 +69,9 @@ void Player::touchItem(Item *i)
 			i->health = 0;
 			ammo[WPN_SHOTGUN] += 4;
 			break;
-		
+		case BONUS_POINT:
+			i->health = 0;
+			score += 250;
 		default:
 			break;
 		}

@@ -10,6 +10,7 @@ class Player : public Entity
 public:
 	int weaponType;
 	int ammo[WPN_MAX];
+	int score;
 
 	Player();
 

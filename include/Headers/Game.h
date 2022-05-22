@@ -6,6 +6,9 @@
 #include <SDL2/SDL_mixer.h>
 #include <string>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+
 
 #include "const.h"
 
@@ -13,9 +16,14 @@ class Mouse
 {
 public:
     int x, y;
-    int button[MAX_MOUSE_BUTTONS] = {0};
+    int button[MAX_MOUSE_BUTTONS];
 	int wheel;
-    Mouse(){x = 0; y = 0;}
+    Mouse()
+    {
+        x = 0; y = 0; wheel = 0;
+        for(int i = 0; i < MAX_MOUSE_BUTTONS; i++)
+		    button[i] = 0;
+    }
 };
 
 class Game
@@ -23,9 +31,12 @@ class Game
 public:
     SDL_Renderer *renderer;
 	SDL_Window *window;
+    SDL_Texture *fontTexture;
     int keyboard[MAX_KEYBOARD_KEYS];
 	Mouse mouse;
     bool check;
+    bool running;
+    std::string inputText;
 
     Game();
     void cleanup();
@@ -40,6 +51,9 @@ public:
     void doMouseButtonDown(SDL_MouseButtonEvent *event);
     void doKeyUp(SDL_KeyboardEvent *event);
     void doKeyDown(SDL_KeyboardEvent *event);
+    void drawText1(int x, int y, int r, int g, int b, int align, const char* text, int w, int number);
+    void drawText2(int x, int y, int r, int g, int b, int align, std::string text);
+    void drawText3 (int x, int y, int r, int g, int b, int align, int i, std::string name, int score);
 };
 
 

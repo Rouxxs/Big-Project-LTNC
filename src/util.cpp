@@ -33,3 +33,8 @@ int getDistance(int x1, int y1, int x2, int y2)
 
 	return sqrt(x * x + y *y);
 }
+
+bool compareHighscore(Highscore a, Highscore b)
+{
+	return a.score > b.score;
+}

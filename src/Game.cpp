@@ -32,6 +32,8 @@ Game::Game()
     renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 	
 	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
+
+	running = true;
 	
 	SDL_ShowCursor(0);
 }
@@ -48,14 +50,14 @@ void Game::cleanup()
 void Game::doInput()
 {
     SDL_Event event;
+	inputText = "";
 	
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
 		{
 			case SDL_QUIT:
-				cleanup();
-				exit(0);
+				running = false;
 				break;
 				
 			case SDL_KEYDOWN:
@@ -85,7 +87,9 @@ void Game::doInput()
 			case SDL_MOUSEWHEEL:
 				mouse.wheel = event.wheel.y;
 				break;
-
+			case SDL_TEXTINPUT:
+				inputText = event.text.text;
+				break;
 
 			default:
 				break;
@@ -155,4 +159,130 @@ void Game::blitRotated(SDL_Texture *texture, int x, int y, float angle)
 	dstRect.y -= (dstRect.h / 2);
 
 	SDL_RenderCopyEx(renderer, texture, NULL, &dstRect, angle, NULL, SDL_FLIP_NONE);
+}
+
+void Game::drawText1(int x, int y, int r, int g, int b, int align, const char* text, int w, int number)
+{
+	SDL_Rect rect;
+	std::ostringstream s;
+	s << text << std::setw(w) << std::setfill('0') << number;
+
+	std::string str = s.str();
+
+	int len = str.size();
+	
+	switch (align)
+	{
+		case TEXT_RIGHT:
+			x -= (len * GLYPH_WIDTH);
+			break;
+			
+		case TEXT_CENTER:
+			x -= (len * GLYPH_WIDTH) / 2;
+			break;
+	}
+	
+	rect.w = GLYPH_WIDTH;
+	rect.h = GLYPH_HEIGHT;
+	rect.y = 0;
+	
+	SDL_SetTextureColorMod(fontTexture, r, g, b);
+	
+	for (int i = 0 ; i < len ; i++)
+	{
+		char c = str[i];
+		
+		if (c >= ' ' && c <= 'Z')
+		{
+			rect.x = (c - ' ') * GLYPH_WIDTH;
+			
+			blitRect(fontTexture, &rect, x, y);
+			
+			x += GLYPH_WIDTH;
+		}
+	}
+}
+
+void Game::drawText2(int x, int y, int r, int g, int b, int align, std::string text)
+{
+	SDL_Rect rect;
+	std::ostringstream s;
+	s << text;
+
+	std::string str = s.str();
+
+	int len = str.size();
+	
+	switch (align)
+	{
+		case TEXT_RIGHT:
+			x -= (len * GLYPH_WIDTH);
+			break;
+			
+		case TEXT_CENTER:
+			x -= (len * GLYPH_WIDTH) / 2;
+			break;
+	}
+	
+	rect.w = GLYPH_WIDTH;
+	rect.h = GLYPH_HEIGHT;
+	rect.y = 0;
+	
+	SDL_SetTextureColorMod(fontTexture, r, g, b);
+	
+	for (int i = 0 ; i < len ; i++)
+	{
+		char c = str[i];
+		
+		if (c >= ' ' && c <= 'Z')
+		{
+			rect.x = (c - ' ') * GLYPH_WIDTH;
+			
+			blitRect(fontTexture, &rect, x, y);
+			
+			x += GLYPH_WIDTH;
+		}
+	}
+}
+
+void Game::drawText3(int x, int y, int r, int g, int b, int align, int i, std::string name, int score)
+{
+	SDL_Rect rect;
+	std::ostringstream s;
+	s << i << ". " << std::left << std::setw(16) << name << std::right  << ":" << std::setw(5) << std::setfill('0') << score;
+
+	std::string str = s.str();
+
+	int len = str.size();
+	
+	switch (align)
+	{
+		case TEXT_RIGHT:
+			x -= (len * GLYPH_WIDTH);
+			break;
+			
+		case TEXT_CENTER:
+			x -= (len * GLYPH_WIDTH) / 2;
+			break;
+	}
+	
+	rect.w = GLYPH_WIDTH;
+	rect.h = GLYPH_HEIGHT;
+	rect.y = 0;
+	
+	SDL_SetTextureColorMod(fontTexture, r, g, b);
+	
+	for (int i = 0 ; i < len ; i++)
+	{
+		char c = str[i];
+		
+		if (c >= ' ' && c <= 'Z')
+		{
+			rect.x = (c - ' ') * GLYPH_WIDTH;
+			
+			blitRect(fontTexture, &rect, x, y);
+			
+			x += GLYPH_WIDTH;
+		}
+	}
 }

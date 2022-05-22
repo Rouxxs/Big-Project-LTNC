@@ -18,10 +18,9 @@ GameStage::GameStage()
 
 	shotgunTexture = loadTexture("gfx/shotgun.png");
 
-	gridTexture[0] = loadTexture("gfx/grid01.png");
-	gridTexture[1] = loadTexture("gfx/grid02.png");
-	gridTexture[2] = loadTexture("gfx/grid03.png");
-	gridTexture[3] = loadTexture("gfx/grid04.png");
+	gridTexture = loadTexture("gfx/grid.png");
+
+	bonusPointTex = loadTexture("gfx/bonus_point.png");
 
 	enemyTexture[0] = loadTexture("gfx/enemy01.png");
 	enemyTexture[1] = loadTexture("gfx/enemy02.png");
@@ -30,37 +29,58 @@ GameStage::GameStage()
 	sqr16 = loadTexture("gfx/whiteSquare16.png");
 	sqr8 = loadTexture("gfx/whiteSquare8.png");
 
-	enemyTail = &enemyHead;
+	titleTex = loadTexture("gfx/title.png");
 
-	bulletTail = &bulletHead;
-
-	itemTail = &itemHead;
-
-	effectTail = &effectHead;
-
-	score = 0;
+	resetStage();
 
 	enemySpawnTimer = 0;
+	pointsSpawnTimer = 0;
+
+	titleFlag = true;
+	titleDY = 0;
+	titleY = 0;
+	timeout = FPS*5;
+
+	highscoreFlag = false;
+	newHighscore = NULL;
+	for (int i = 0; i < 8; i++)
+	{
+		highscores[i].name = "................"; 
+	}
+	cursorBlink = 0;
 
 	player = new Player;
+	player->score = 0;
 	player->texture = playerTex1;
+
+	gameOverTimer = FPS*2;
 }
 
 void GameStage::logic()
 {	
 	doPlayer();
 
-	doEnemies();
+	if(player->health > 0)
+	{
+		doEnemies();
 
-	doBullets();
+		doBullets();
 
-	spawnEnemy();
+		spawnEnemy();
+		spawnPointsPowerup();doItems();
+
+		doCamera();
+	}
 	
 	doEffect();
 
-	doItems();
 
-	doCamera();	
+	if(player->health <= 0 && --gameOverTimer <= 0)
+	{
+		addHighscore(score);
+		
+		highscoreFlag = true;
+	}
 }
 
 void GameStage::draw()
@@ -77,7 +97,8 @@ void GameStage::draw()
 
 	drawHud();
 
-	blitRotated(player->texture, player->x - camera.x, player->y - camera.y, player->angle); // draw player
+	if(player->health > 0)
+		blitRotated(player->texture, player->x - camera.x, player->y - camera.y, player->angle); // draw player
 
 	blit(targetterTexture, mouse.x, mouse.y, 1);
 }
@@ -105,7 +126,7 @@ void GameStage::drawGrid()
 			{
 				n = ((mx * my) / 40) % 4;
 
-				blit(gridTexture[n], x, y, 0);
+				blit(gridTexture, x, y, 0);
 			}
 
 			my++;
@@ -136,56 +157,59 @@ void GameStage::fireBullet()
 
 void GameStage::doPlayer()
 {
-	if (check == true) 
-		player->texture = playerTex2;
-	else
-		player->texture = playerTex1;
-
-	player->move(keyboard);
-
-	player->angle = getAngle(player->x - camera.x, player->y - camera.y, mouse.x, mouse.y);	
-
-	if (player->reload == 0 && player->ammo[player->weaponType] > 0 && mouse.button[SDL_BUTTON_LEFT])
+	if(player->health > 0)
 	{
-		fireBullet();
-		
-		player->ammo[player->weaponType]--;
-	}
-	
-	if (mouse.wheel < 0)
-	{
-		if (--player->weaponType < WPN_PISTOL)
+		if (check == true) 
+			player->texture = playerTex2;
+		else
+			player->texture = playerTex1;
+
+		player->move(keyboard);
+
+		player->angle = getAngle(player->x - camera.x, player->y - camera.y, mouse.x, mouse.y);	
+
+		if (player->reload == 0 && player->ammo[player->weaponType] > 0 && mouse.button[SDL_BUTTON_LEFT])
 		{
-			player->weaponType = WPN_MAX - 1;
+			fireBullet();
+			
+			player->ammo[player->weaponType]--;
 		}
 		
-		mouse.wheel = 0;
-	}
-	
-	if (mouse.wheel > 0)
-	{
-		if (++player->weaponType >= WPN_MAX)
+		if (mouse.wheel < 0)
 		{
-			player->weaponType = WPN_PISTOL;
+			if (--player->weaponType < WPN_PISTOL)
+			{
+				player->weaponType = WPN_MAX - 1;
+			}
+			
+			mouse.wheel = 0;
 		}
 		
-		mouse.wheel = 0;
-	}
-	
-	if (mouse.button[SDL_BUTTON_RIGHT])
-	{
-		if (player->weaponType == WPN_PISTOL && player->ammo[WPN_PISTOL] == 0)
+		if (mouse.wheel > 0)
 		{
-			player->ammo[WPN_PISTOL] = 12;
+			if (++player->weaponType >= WPN_MAX)
+			{
+				player->weaponType = WPN_PISTOL;
+			}
+			
+			mouse.wheel = 0;
 		}
 		
-		mouse.button[SDL_BUTTON_RIGHT] = 0;
+		if (mouse.button[SDL_BUTTON_RIGHT])
+		{
+			if (player->weaponType == WPN_PISTOL && player->ammo[WPN_PISTOL] == 0)
+			{
+				player->ammo[WPN_PISTOL] = 12;
+			}
+			
+			mouse.button[SDL_BUTTON_RIGHT] = 0;
+		}
 	}
-
-	if (player->health == 0)
+	else 
 	{
-		delete player;
+		
 		addPlayerDeathEffect();
+		score = player->score;
 	}
 }
 
@@ -229,7 +253,19 @@ void GameStage::doEnemies()
 				addRandomItem(e->x, e->y);
 			}
 
-			score += 10;
+			switch (e->type)
+			{
+			case 0:
+				player->score += 10;
+				break;
+			case 1:
+				player->score += 15;
+				break;
+			case 2:
+				player->score += 20;
+				break;
+			}
+
 			if (e == enemyTail)
 			{
 				enemyTail = prev;
@@ -511,47 +547,6 @@ void GameStage::fireType3(Enemy *e)
 	}
 }
 
-void GameStage::drawText(int x, int y, int r, int g, int b, int align, const char* text, int w, int number)
-{
-	SDL_Rect rect;
-	std::ostringstream s;
-	s << text << std::setw(w) << std::setfill('0') << number;
-	std::string str = s.str();
-
-	int len = str.size();
-	
-	switch (align)
-	{
-		case TEXT_RIGHT:
-			x -= (len * GLYPH_WIDTH);
-			break;
-			
-		case TEXT_CENTER:
-			x -= (len * GLYPH_WIDTH) / 2;
-			break;
-	}
-	
-	rect.w = GLYPH_WIDTH;
-	rect.h = GLYPH_HEIGHT;
-	rect.y = 0;
-	
-	SDL_SetTextureColorMod(fontTexture, r, g, b);
-	
-	for (int i = 0 ; i < len ; i++)
-	{
-		char c = str[i];
-		
-		if (c >= ' ' && c <= 'Z')
-		{
-			rect.x = (c - ' ') * GLYPH_WIDTH;
-			
-			blitRect(fontTexture, &rect, x, y);
-			
-			x += GLYPH_WIDTH;
-		}
-	}
-}
-
 void GameStage::drawWeaponInfo(const char* name, int type, int x, int y)
 {
 	int r, g, b;
@@ -566,14 +561,14 @@ void GameStage::drawWeaponInfo(const char* name, int type, int x, int y)
 		r = g = b = 255;
 	}
 	
-	drawText(x, y, r, g, b, TEXT_LEFT, name, 3, player->ammo[type]);
+	drawText1(x, y, r, g, b, TEXT_LEFT, name, 3, player->ammo[type]);
 }
 
 void GameStage::drawHud()
 {
-	drawText(10, 10, 255, 255, 255, TEXT_LEFT, "HEALTH:", 2, player->health);
+	drawText1(10, 10, 255, 255, 255, TEXT_LEFT, "HEALTH:", 2, player->health);
 	
-	drawText(250, 10, 255, 255, 255, TEXT_LEFT, "SCORE:", 5, score);
+	drawText1(250, 10, 255, 255, 255, TEXT_LEFT, "SCORE:", 5, player->score);
 	
 	drawWeaponInfo("PISTOL:", WPN_PISTOL, 550, 10);
 	
@@ -598,6 +593,7 @@ void GameStage::addEnemy(int x, int y)
 			e->y = y;
 			e->radius = 35;
 			e->health = 25;
+			e->type = 1;
 			break;
 			
 		case 1:
@@ -605,7 +601,8 @@ void GameStage::addEnemy(int x, int y)
 			e->x = x;
 			e->y = y;
 			e->radius = 26;
-			e->health = 2;
+			e->health = 15;
+			e->type = 2;
 			break;
 			
 		default:
@@ -614,6 +611,7 @@ void GameStage::addEnemy(int x, int y)
 			e->y = y;
 			e->radius = 32;
 			e->health = 5;
+			e->type = 0;
 			break;
 	}
 	
@@ -839,10 +837,18 @@ void GameStage::addEnemyDeathEffect(Enemy* enemy)
 		
 		e->texture = sqr16;
 		
-		e->color.r = 255;
-		e->color.g = 0;
-		e->color.b = 0;
-		e->color.a = rand() % 255;
+		switch (enemy->type)
+		{
+			case 0:
+				e->color = {53,116,180,255};
+				break;
+			case 1:
+				e->color = {125,199,53,255};
+				break;
+			case 2:
+				e->color = {84,71,166};
+				break;
+		}
 		
 		e->life = rand() % FPS;
 	}
@@ -899,9 +905,18 @@ void GameStage::addBulletHitEffect(Enemy* enemy)
 		
 		e->texture = sqr16;
 		
-		e->color = enemy->color;
-		
-		e->color.a = rand() % 255;
+		switch (enemy->type)
+		{
+			case 0:
+				e->color = {53,116,180,255};
+				break;
+			case 1:
+				e->color = {125,199,53,255};
+				break;
+			case 2:
+				e->color = {124,115,214,255};
+				break;
+		}
 		
 		e->life = rand() % FPS;
 	}
@@ -935,3 +950,289 @@ void GameStage::doEnemyEffect(Enemy* enemy)
 		e->life = rand() % FPS;
 	}
 }
+
+void GameStage::addBonusPoints(int x, int y)
+{
+	Item *i = new Item;
+
+	i->x = x;
+	i->y = y;
+	i->health = FPS * 10;
+	i->dx = i->dy = 0;
+	i->type = BONUS_POINT;
+
+	i->texture = bonusPointTex;
+
+	itemTail->next = i;
+	itemTail = i;
+}
+
+void GameStage::spawnPointsPowerup()
+{
+	int x, y;
+
+	if (--pointsSpawnTimer <= 0)
+	{
+		x = rand() % ARENA_WIDTH;
+		y = rand() % ARENA_HEIGHT;
+
+		addBonusPoints(x, y);
+
+		pointsSpawnTimer = (FPS * 3) + rand() % (FPS * 2);
+	}
+}
+
+
+ void GameStage::resetStage()
+{
+	Enemy *e;
+	Effect *ef;
+	Item *i;
+	Bullet *b;
+
+	while (enemyHead.next)
+	{
+		e = enemyHead.next;
+		enemyHead.next = e->next;
+		delete e;
+	}
+
+	while (bulletHead.next)
+	{
+		b = bulletHead.next;
+		bulletHead.next = b->next;
+		delete b;
+	}
+
+	while (effectHead.next)
+	{
+		ef = effectHead.next;
+		effectHead.next = ef->next;
+		delete ef;
+	}
+
+	while (itemHead.next)
+	{
+		i = itemHead.next;
+		itemHead.next = i->next;
+		delete i;
+	}
+	delete player;
+
+	enemyTail = &enemyHead;
+	bulletTail = &bulletHead;
+	effectTail = &effectHead;
+	itemTail = &itemHead;
+
+	gameOverTimer = FPS * 2;
+}
+
+void GameStage::doTitle()
+{
+	titleDY = MIN(titleDY + 0.25, 25);
+
+	titleY = MIN(titleY + titleDY, 200);
+
+	if (titleY == 200)
+	{
+		titleDY = - titleDY * 0.5;
+
+		if (titleDY > -1)
+		{
+			titleDY = 0;
+		}
+	}
+
+	if (--timeout <= 0)
+	{
+		titleFlag = false;
+		highscoreFlag = true;
+		timeout = FPS*5;
+	}
+
+	if (mouse.button[SDL_BUTTON_LEFT] && titleFlag == true)
+	{
+		titleFlag = false;
+		initStage();
+	}
+}
+
+void GameStage::showTitle()
+{
+	blit(titleTex, SCREEN_WIDTH / 2, (int) titleY, 1);
+	
+	if (timeout % 40 < 20)
+	{
+		drawText2(SCREEN_WIDTH / 2, 600, 255, 255, 255, TEXT_CENTER, "PRESS FIRE TO PLAY!!!");
+	}
+	
+	blit(targetterTexture, mouse.x, mouse.y, 1);
+}
+
+void GameStage::doHighscore()
+{
+	if (newHighscore != NULL)
+	{
+		inputName();
+	}
+	else
+	{
+		if (--timeout <= 0)
+		{
+			titleFlag = true;
+			timeout = FPS*5;
+		}
+		
+		if (mouse.button[SDL_BUTTON_LEFT])
+		{
+			titleFlag = false;
+			highscoreFlag = false;
+			initStage();
+		}
+	}
+
+
+	if (++cursorBlink >= FPS)
+	{
+		cursorBlink = 0;
+	}
+}
+
+void GameStage::inputName()
+{
+	int n = newHighscore->name.size();
+
+	std::cout << inputText;
+	for (int i = 0; i < inputText.size(); i++)
+	{
+		char c = toupper(inputText[i]);
+		if(n < MAX_SCORE_NAME_LENGTH - 1 && c >= ' ' && c <= 'Z')
+		{
+			newHighscore->name += c;
+		}
+	}
+
+	if (n > 0 && keyboard[SDL_SCANCODE_BACKSPACE])
+	{
+		newHighscore->name.pop_back();
+		
+		keyboard[SDL_SCANCODE_BACKSPACE] = 0;
+	}
+
+	if (keyboard[SDL_SCANCODE_RETURN])
+	{
+		if (newHighscore->name.size() == 0)
+		{
+			newHighscore->name = "ANONYMOUS";
+		}
+		
+		newHighscore = NULL;
+	}
+}
+
+
+void GameStage::drawInputName()
+{
+	SDL_Rect r;
+	
+	drawText2(SCREEN_WIDTH / 2, 70, 255, 255, 255, TEXT_CENTER, "CONGRATULATIONS, YOU'VE GAINED A HIGHSCORE!");
+	
+	drawText2(SCREEN_WIDTH / 2, 120, 255, 255, 255, TEXT_CENTER, "ENTER YOUR NAME BELOW:");
+	
+	drawText2(SCREEN_WIDTH / 2, 250, 128, 255, 128, TEXT_CENTER, newHighscore->name);
+	
+	if (cursorBlink < FPS / 2)
+	{
+		r.x = ((SCREEN_WIDTH / 2) + (newHighscore->name.size() * GLYPH_WIDTH) / 2) + 5;
+		r.y = 250;
+		r.w = GLYPH_WIDTH;
+		r.h = GLYPH_HEIGHT;
+		
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+		SDL_RenderFillRect(renderer, &r);
+	}
+	
+	drawText2(SCREEN_WIDTH / 2, 625, 255, 255, 255, TEXT_CENTER, "PRESS RETURN WHEN FINISHED");
+}
+
+void GameStage::showHighscore()
+{
+	if (newHighscore != NULL)
+	{
+		drawInputName();
+	}
+	else
+	{
+		drawHighscores();
+		
+		if (timeout % 40 < 20)
+		{
+			drawText2(SCREEN_WIDTH / 2, 600, 255, 255, 255, TEXT_CENTER, "PRESS FIRE TO PLAY!!!");
+		}
+	}
+	blit(targetterTexture, mouse.x, mouse.y, 1);
+}
+
+void GameStage::drawHighscores()
+{
+	int y = 150, r, g, b;
+	
+	drawText2(SCREEN_WIDTH / 2, 70, 255, 255, 255, TEXT_CENTER, "HIGHSCORES");
+	
+	for (int i = 0; i < 8; i++)
+	{
+		r = g = b = 255;
+		
+		if (highscores[i].recent)
+		{
+			b = 0;
+		}
+		
+		drawText3(SCREEN_WIDTH / 2, y, r, g, b, TEXT_CENTER, i+1, highscores[i].name, highscores[i].score);
+		
+		y += 50;
+	}
+}
+
+void GameStage::addHighscore(int score)
+{
+	Highscore newHighscores[9];
+
+	for (int i = 0 ; i < 8 ; i++)
+	{
+		newHighscores[i] = highscores[i];
+		newHighscores[i].recent = 0;
+	}
+	
+	newHighscores[8].score = score;
+	newHighscores[8].recent = 1;
+	
+	std::sort(newHighscores, newHighscores + 9, compareHighscore);
+	
+	for (int i = 0 ; i < 8 ; i++)
+	{
+		highscores[i] = newHighscores[i];
+		std::cout << newHighscores[i].recent;
+		
+		if (highscores[i].recent == 1)
+		{
+			newHighscore = &highscores[i];
+		}
+	}
+}
+
+void GameStage::initStage()
+{
+	resetStage();
+	
+	player = new Player;
+	player->score = 0;
+	player->texture = playerTex1;
+	
+	enemySpawnTimer = 0;
+	pointsSpawnTimer = 0;
+}
+
+
+
+

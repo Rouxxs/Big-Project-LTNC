@@ -1,10 +1,10 @@
 #ifndef GAMESTAGE_H
 #define GAMESTAGE_H
 
+#include <fstream>
 #include "common.h"
-#include <sstream>
-#include <iomanip>
 #include "Effect.h"
+#include "Highscore.h"
 
 class GameStage : public Game
 {
@@ -13,16 +13,16 @@ public:
     SDL_Texture *playerTex1, *playerTex2;
     SDL_Texture *bullet;
     SDL_Texture *enemyBullet;
-    SDL_Texture *fontTexture;
     SDL_Texture *healthTexture;
     SDL_Texture *uziTexture;
     SDL_Texture *shotgunTexture;
-    SDL_Texture *gridTexture[4];
+    SDL_Texture *gridTexture;
     SDL_Texture *enemyTexture[3];
+    SDL_Texture *bonusPointTex;
     SDL_Texture *sqr16;
     SDL_Texture *sqr8;
+    SDL_Texture *titleTex;
 
-    int score;
     Enemy enemyHead, *enemyTail;
     Bullet bulletHead, *bulletTail;
     Item itemHead, *itemTail;
@@ -32,11 +32,26 @@ public:
     Player *player;
     
     int enemySpawnTimer;
+    int pointsSpawnTimer;
+    int gameOverTimer;
+    int score;
+    bool check = false;
+
+    bool titleFlag;
+    float titleY;
+    float titleDY;
+    int timeout;
+
+    Highscore highscores[8];
+    bool highscoreFlag;
+    int cursorBlink;
+    Highscore *newHighscore;
 
     GameStage();
 
     void logic();
     void draw();
+    void initStage();
     
     void doPlayer();
     void doEnemies();
@@ -49,7 +64,6 @@ public:
     void drawEnemies();
     void drawBullets();
     void drawHud();
-    void drawText(int x, int y, int r, int g, int b, int align, const char* text, int w, int number);
     void drawWeaponInfo(const char *name, int type, int x, int y);
     void drawItems();
     void drawGrid();
@@ -76,8 +90,21 @@ public:
     void addPlayerDeathEffect();
     void addBulletHitEffect(Enemy* enemy);
     void bulletHitEntity(Bullet* b);
+    void addBonusPoints(int x, int y);
+    void spawnPointsPowerup();
 
     Bullet* createBullet();
+
+    void resetStage();
+    void showTitle();
+    void doTitle();
+
+    void doHighscore();
+    void showHighscore();
+    void inputName();
+    void drawInputName();
+    void drawHighscores();
+    void addHighscore(int score);
 };
 
 #endif
