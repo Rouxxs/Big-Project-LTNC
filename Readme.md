@@ -2,8 +2,23 @@
 Sử dụng lệnh git clone để clone game về máy.
 
 Ở terminal 
-Nhập lệnh: "make" để dịch lại toàn bộ game.
-Nhập lệnh: ".\Game.exe" để bắt đầu trò chơi.
+Dịch chương trình
+```
+make
+```
+hoặc 
+```
+g++ -Iinclude -Iinclude/SDL2 -Iinclude/Headers -Llib -o Game src/*.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
+```
+Chạy chương trình
+```
+.\Game.exe
+```
+hoặc 
+```
+make run 
+```
+để dịch và chạy chương trình.
 
 2. Mô tả:
 Ở phần menu:
