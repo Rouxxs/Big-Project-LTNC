@@ -11,10 +11,10 @@ Nhập lệnh: <.\Game.exe> để bắt đầu trò chơi
 
 Trong trò chơi:
 Chúng ta điều khiển nhân vật di chuyển và bắn các xe tăng, khi hạ được xe tăng ta sẽ nhận được điểm.
-Đi lên ta ấn phím <W>.
-Đi sang phải ta ấn phím <D>.
-Đi sang trái ta ấn phím <A>.
-Đi xuống dưới ta ấn phím <S>.
+Đi lên ta ấn phím W.
+Đi sang phải ta ấn phím D.
+Đi sang trái ta ấn phím A.
+Đi xuống dưới ta ấn phím S.
 Để khai hoả súng ta ấn chuột trái, lăn con lăn chuột sẽ chuyển đổi giữa các vũ khí với nhau.
 Các vũ khí sẽ không khai hoả được khi số đạn còn lại ở 0, đối với pistol khi hết đạn click chuột phải sẽ reload đạn.
 Khi giết chết quái sẽ rơi ra các bao đạn và máu, đi vào sẽ được nạp đạn theo từng loại và hồi máu.
