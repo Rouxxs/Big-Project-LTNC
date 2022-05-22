@@ -30,11 +30,11 @@ Trong trò chơi:
 
 - Di chuyển lên nhấn W
 
-- Di chuyển lên nhấn D.
+- Di chuyển sang phải nhấn D.
 
-- Di chuyển lên nhấn A.
+- Di chuyển sang trái nhấn A.
 
-- Di chuyển lên nhấn S.
+- Di chuyển xuống nhấn S.
 
 - Để khai hoả súng ta ấn chuột trái, lăn con lăn chuột sẽ chuyển đổi giữa các vũ khí với nhau.
 
