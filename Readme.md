@@ -48,4 +48,4 @@ Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm 
 đây mới chỉ là một trò chơi chưa hoàn chỉnh:
 dự định phát triển trong tương lai sẽ có thêm nhiều màn chơi, phát triển thêm các loại boss, thêm các loại vật cản trong map, quái di chuyển phức tạp hơn là chỉ đi về phía người chơi như hiện tại, tối ưu hoá về mặt dung lượng và bộ nhớ giúp tốn ít không gian lưu trữ và game chạy được mượt mà hơn.
 
-(NGUỒN THAM KHẢO: https://www.parallelrealities.co.uk/tutorials/bad/bad1.php, một vài lỗi nhỏ được tra cứu trên stackoverflow,...).
+(NGUỒN THAM KHẢO: parallelrealities.co.uk, một vài lỗi nhỏ được tra cứu trên stackoverflow,...).
