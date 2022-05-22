@@ -22,29 +22,29 @@ make run
 
 ## 2. Mô tả:
 Ở phần menu:
-Ấn chuột trái để vào chơi.
+- Ấn chuột trái để vào chơi.
 
 Trong trò chơi:
 
-Chúng ta điều khiển nhân vật di chuyển và bắn các xe tăng, khi hạ được xe tăng ta sẽ nhận được điểm.
+- Chúng ta điều khiển nhân vật di chuyển và bắn các xe tăng, khi hạ được xe tăng ta sẽ nhận được điểm.
 
-Đi lên ta ấn phím W.
+- Di chuyển lên nhấn W
 
-Đi sang phải ta ấn phím D.
+- Di chuyển lên nhấn D.
 
-Đi sang trái ta ấn phím A.
+- Di chuyển lên nhấn A.
 
-Đi xuống dưới ta ấn phím S.
+- Di chuyển lên nhấn S.
 
-Để khai hoả súng ta ấn chuột trái, lăn con lăn chuột sẽ chuyển đổi giữa các vũ khí với nhau.
+- Để khai hoả súng ta ấn chuột trái, lăn con lăn chuột sẽ chuyển đổi giữa các vũ khí với nhau.
 
-Các vũ khí sẽ không khai hoả được khi số đạn còn lại ở 0, đối với pistol khi hết đạn click chuột phải sẽ reload đạn.
+- Các vũ khí sẽ không khai hoả được khi số đạn còn lại ở 0, đối với pistol khi hết đạn click chuột phải sẽ reload đạn.
 
-Khi giết chết quái sẽ rơi ra các bao đạn và máu, đi vào sẽ được nạp đạn theo từng loại và hồi máu.
+- Khi giết chết quái sẽ rơi ra các bao đạn và máu, đi vào sẽ được nạp đạn theo từng loại và hồi máu.
 
-Ngẫu nhiên sẽ có các điểm thưởng trên bản đồ, khi đi vào ta sẽ được nhận điểm ngẫu nhiên.
+- Ngẫu nhiên sẽ có các điểm thưởng trên bản đồ, khi đi vào ta sẽ được nhận điểm ngẫu nhiên.
 
-Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh. Sau khi ghi danh bấm Enter để trở lại màn hình chính.
+- Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh. Sau khi ghi danh bấm Enter để trở lại màn hình chính.
 
 ( link youtube : )
 
@@ -59,8 +59,8 @@ Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm 
 
 (*)bắt frame per second.
 
-4. Kết luận và hướng phát triển:
-đây mới chỉ là một trò chơi chưa hoàn chỉnh:
+## 4. Kết luận và hướng phát triển:
+Đây mới chỉ là một trò chơi chưa hoàn chỉnh:
 dự định phát triển trong tương lai sẽ có thêm nhiều màn chơi, phát triển thêm các loại boss, thêm các loại vật cản trong map, quái di chuyển phức tạp hơn là chỉ đi về phía người chơi như hiện tại, tối ưu hoá về mặt dung lượng và bộ nhớ giúp tốn ít không gian lưu trữ và game chạy được mượt mà hơn.
 
 (NGUỒN THAM KHẢO: parallelrealities.co.uk, một vài lỗi nhỏ được tra cứu trên stackoverflow,...).
