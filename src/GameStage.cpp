@@ -649,7 +649,7 @@ void GameStage::addEnemy(int x, int y)
 			if (getDistance(e->x, e->y, b->x, b->y) < e->radius + b->radius)
 			{
 				addBulletHitEffect(e);
-				playSound(SND_DONK_HIT, CH_PLAYER);
+				playSound(SND_ENEMY_HIT, CH_HIT);
 				b->health = 0;
 				e->health--;
 				return;
@@ -663,7 +663,7 @@ void GameStage::addEnemy(int x, int y)
 			b->health = 0;
 			player->health--;
 			bulletHitPlayerEffect();
-			playSound(SND_ENEMY_HIT, CH_HIT);
+			playSound(SND_DONK_HIT, CH_PLAYER);
 			return;
 		}
 	}
