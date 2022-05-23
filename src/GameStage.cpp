@@ -37,8 +37,6 @@ GameStage::GameStage()
 	
 	playMusic(1);
 
-	//resetStage();
-
 	enemySpawnTimer = 0;
 	pointsSpawnTimer = 0;
 
@@ -168,10 +166,12 @@ void GameStage::doPlayer()
 {
 	if(player->health > 0)
 	{
-		if (check == true) 
-			player->texture = playerTex2;
+		if (check == true)
+		{player->texture = playerTex2;}	
 		else
+		{
 			player->texture = playerTex1;
+		}
 
 		player->move(keyboard);
 
@@ -649,7 +649,7 @@ void GameStage::addEnemy(int x, int y)
 			if (getDistance(e->x, e->y, b->x, b->y) < e->radius + b->radius)
 			{
 				addBulletHitEffect(e);
-				playSound(SND_DONK_HIT, CH_PLAYER);
+				playSound(SND_ENEMY_HIT, CH_HIT);
 				b->health = 0;
 				e->health--;
 				return;
@@ -663,7 +663,7 @@ void GameStage::addEnemy(int x, int y)
 			b->health = 0;
 			player->health--;
 			bulletHitPlayerEffect();
-			playSound(SND_ENEMY_HIT, CH_HIT);
+			playSound(SND_DONK_HIT, CH_PLAYER);
 			return;
 		}
 	}
@@ -993,10 +993,7 @@ void GameStage::bulletHitPlayerEffect()
 
 		e->texture = sqr8;
 
-		e->color.r = 255;
-		e->color.g = 128 + rand() % 128;
-		e->color.b = 0;
-		e->color.a = rand() % 255;
+		e->color = {53,46,46,255};
 
 		e->life = rand() % FPS;
 	}

@@ -36,5 +36,5 @@ int getDistance(int x1, int y1, int x2, int y2)
 
 bool compareHighscore(Highscore a, Highscore b)
 {
-	return a.score > b.score;
+	return a.score >= b.score;
 }
