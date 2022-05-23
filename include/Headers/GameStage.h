@@ -10,6 +10,7 @@ class GameStage : public Game
 {
 public: 
     SDL_Texture *targetterTexture;
+    SDL_Texture *background;
     SDL_Texture *playerTex1, *playerTex2;
     SDL_Texture *bullet;
     SDL_Texture *enemyBullet;

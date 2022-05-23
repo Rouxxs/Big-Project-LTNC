@@ -30,11 +30,11 @@ Trong trò chơi:
 
 - Di chuyển lên nhấn W
 
-- Di chuyển lên nhấn D.
+- Di chuyển sang phải nhấn D.
 
-- Di chuyển lên nhấn A.
+- Di chuyển sang trái nhấn A.
 
-- Di chuyển lên nhấn S.
+- Di chuyển xuống nhấn S.
 
 - Để khai hoả súng ta ấn chuột trái, lăn con lăn chuột sẽ chuyển đổi giữa các vũ khí với nhau.
 
@@ -46,21 +46,10 @@ Trong trò chơi:
 
 - Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh. Sau khi ghi danh bấm Enter để trở lại màn hình chính.
 
-( link youtube : )
-
-## 3. Kĩ thuật lập trình:
-(*)sử dụng thư viện SDL.h, render ảnh theo lớp, nhân vật bằng thư viện SDL_image, load audio bằng thư viện SDL_Mixer.
-
-(*)làm cho nhân vật chuyển động dựa trên toạ độ và góc xoay camera.
-
-(*)chia chương trình thành nhiều file con nhỏ để mỗi file có một chức năng riêng thuận tiện cho việc lập trình và sửa lỗi.
-
-(*)sử dụng các danh sách liên kết đơn để lưu danh sách quái, vật phẩm và hiệu ứng.
-
-(*)bắt frame per second.
-
-## 4. Kết luận và hướng phát triển:
-Đây mới chỉ là một trò chơi chưa hoàn chỉnh:
-dự định phát triển trong tương lai sẽ có thêm nhiều màn chơi, phát triển thêm các loại boss, thêm các loại vật cản trong map, quái di chuyển phức tạp hơn là chỉ đi về phía người chơi như hiện tại, tối ưu hoá về mặt dung lượng và bộ nhớ giúp tốn ít không gian lưu trữ và game chạy được mượt mà hơn.
+( link youtube : https://www.youtube.com/watch?v=7G8WVOmEgXA).
 
 (NGUỒN THAM KHẢO: parallelrealities.co.uk, một vài lỗi nhỏ được tra cứu trên stackoverflow,...).
+
+## 3. Phân công công việc nhóm:
+
+Ngô Thượng Hiếu: làm quái, đạn quái, map, audio.

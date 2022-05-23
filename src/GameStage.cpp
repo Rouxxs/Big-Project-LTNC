@@ -3,6 +3,7 @@
 GameStage::GameStage()
 {
 	targetterTexture = loadTexture("gfx/targetter.png");
+	background = loadTexture("gfx/background.png");
 
 	playerTex1 = loadTexture("gfx/Player.png");
 	playerTex2 = loadTexture("gfx/Player_shoot.png");
@@ -217,7 +218,7 @@ void GameStage::doPlayer()
 	else 
 	{
 		addPlayerDeathEffect();
-		playSound(SND_DONK_DIE, CH_PLAYER);
+		playSound(SND_PLAYER_DIE, CH_PLAYER);
 		score = player->score;
 	}
 }
@@ -663,7 +664,7 @@ void GameStage::addEnemy(int x, int y)
 			b->health = 0;
 			player->health--;
 			bulletHitPlayerEffect();
-			playSound(SND_DONK_HIT, CH_PLAYER);
+			playSound(SND_PLAYER_HIT, CH_PLAYER);
 			return;
 		}
 	}
@@ -1108,8 +1109,8 @@ void GameStage::doTitle()
 
 void GameStage::showTitle()
 {
+	blit(background, SCREEN_WIDTH / 2, SCREEN_HEIGHT /2, 1);
 	blit(titleTex, SCREEN_WIDTH / 2, (int) titleY, 1);
-	
 	if (timeout % 40 < 20)
 	{
 		drawText2(SCREEN_WIDTH / 2, 600, 255, 255, 255, TEXT_CENTER, "PRESS FIRE TO PLAY!!!");
@@ -1184,9 +1185,9 @@ void GameStage::drawInputName()
 {
 	SDL_Rect r;
 	
-	drawText2(SCREEN_WIDTH / 2, 70, 255, 255, 255, TEXT_CENTER, "CONGRATULATIONS, YOU'VE GAINED A HIGHSCORE!");
+	drawText2(SCREEN_WIDTH / 2, 70, 255, 0, 0, TEXT_CENTER, "CONGRATULATIONS, YOU'VE GAINED A HIGHSCORE!");
 	
-	drawText2(SCREEN_WIDTH / 2, 120, 255, 255, 255, TEXT_CENTER, "ENTER YOUR NAME BELOW:");
+	drawText2(SCREEN_WIDTH / 2, 120, 255, 0, 0, TEXT_CENTER, "ENTER YOUR NAME BELOW:");
 	
 	drawText2(SCREEN_WIDTH / 2, 250, 128, 255, 128, TEXT_CENTER, newHighscore->name);
 	
@@ -1201,11 +1202,12 @@ void GameStage::drawInputName()
 		SDL_RenderFillRect(renderer, &r);
 	}
 	
-	drawText2(SCREEN_WIDTH / 2, 625, 255, 255, 255, TEXT_CENTER, "PRESS RETURN WHEN FINISHED");
+	drawText2(SCREEN_WIDTH / 2, 625, 255, 0, 0, TEXT_CENTER, "PRESS RETURN WHEN FINISHED");
 }
 
 void GameStage::showHighscore()
 {
+	blit(background, SCREEN_WIDTH / 2, SCREEN_HEIGHT /2, 1);
 	if (newHighscore != NULL)
 	{
 		drawInputName();
@@ -1216,7 +1218,7 @@ void GameStage::showHighscore()
 		
 		if (timeout % 40 < 20)
 		{
-			drawText2(SCREEN_WIDTH / 2, 600, 255, 255, 255, TEXT_CENTER, "PRESS FIRE TO PLAY!!!");
+			drawText2(SCREEN_WIDTH / 2, 600, 255, 0, 0, TEXT_CENTER, "PRESS FIRE TO PLAY!!!");
 		}
 	}
 	blit(targetterTexture, mouse.x, mouse.y, 1);
@@ -1224,6 +1226,7 @@ void GameStage::showHighscore()
 
 void GameStage::drawHighscores()
 {
+
 	int y = 150, r, g, b;
 	
 	drawText2(SCREEN_WIDTH / 2, 70, 255, 255, 255, TEXT_CENTER, "HIGHSCORES");
@@ -1326,9 +1329,9 @@ void GameStage::loadSounds()
 	sounds[SND_ENEMY_BULLET] = Mix_LoadWAV("sound/344809__limitsnap-creations__laserblast-effect.ogg");
 	sounds[SND_POINTS] = Mix_LoadWAV("sound/342749__rhodesmas__notification-01.ogg");
 	sounds[SND_ENEMY_HIT] = Mix_LoadWAV("sound/97792__cgeffex__metal-impact.ogg");
-	sounds[SND_DONK_HIT] = Mix_LoadWAV("sound/163441__under7dude__man-getting-hit.ogg");
+	sounds[SND_PLAYER_HIT] = Mix_LoadWAV("sound/163441__under7dude__man-getting-hit.ogg");
 	sounds[SND_ENEMY_DIE] = Mix_LoadWAV("sound/260434__roganderrick__glass-break-medium-jar.ogg");
-	sounds[SND_DONK_DIE] = Mix_LoadWAV("sound/219883__pablocandel__boy-scream.ogg");
+	sounds[SND_PLAYER_DIE] = Mix_LoadWAV("sound/219883__pablocandel__boy-scream.ogg");
 }
 
 
