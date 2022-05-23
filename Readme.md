@@ -52,4 +52,5 @@ Trong trò chơi:
 
 ## 3. Phân công công việc nhóm:
 
-Ngô Thượng Hiếu: làm quái, đạn quái, map, audio.
+- Ngô Thượng Hiếu: làm quái, đạn quái, map, audio.
+- Đồng Văn Dương: player, item, scorebroad, effect.
