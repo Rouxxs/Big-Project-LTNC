@@ -217,7 +217,7 @@ void GameStage::doPlayer()
 	else 
 	{
 		addPlayerDeathEffect();
-		playSound(SND_DONK_DIE, CH_PLAYER);
+		playSound(SND_PLAYER_DIE, CH_PLAYER);
 		score = player->score;
 	}
 }
@@ -663,7 +663,7 @@ void GameStage::addEnemy(int x, int y)
 			b->health = 0;
 			player->health--;
 			bulletHitPlayerEffect();
-			playSound(SND_DONK_HIT, CH_PLAYER);
+			playSound(SND_PLAYER_HIT, CH_PLAYER);
 			return;
 		}
 	}
@@ -1329,9 +1329,9 @@ void GameStage::loadSounds()
 	sounds[SND_ENEMY_BULLET] = Mix_LoadWAV("sound/344809__limitsnap-creations__laserblast-effect.ogg");
 	sounds[SND_POINTS] = Mix_LoadWAV("sound/342749__rhodesmas__notification-01.ogg");
 	sounds[SND_ENEMY_HIT] = Mix_LoadWAV("sound/97792__cgeffex__metal-impact.ogg");
-	sounds[SND_DONK_HIT] = Mix_LoadWAV("sound/163441__under7dude__man-getting-hit.ogg");
+	sounds[SND_PLAYER_HIT] = Mix_LoadWAV("sound/163441__under7dude__man-getting-hit.ogg");
 	sounds[SND_ENEMY_DIE] = Mix_LoadWAV("sound/260434__roganderrick__glass-break-medium-jar.ogg");
-	sounds[SND_DONK_DIE] = Mix_LoadWAV("sound/219883__pablocandel__boy-scream.ogg");
+	sounds[SND_PLAYER_DIE] = Mix_LoadWAV("sound/219883__pablocandel__boy-scream.ogg");
 }
 
 

@@ -71,7 +71,7 @@ void Player::touchItem(Item *i)
 			break;
 		case BONUS_POINT:
 			i->health = 0;
-			score += 250;
+			score += rand() % 1000;
 		default:
 			break;
 		}
