@@ -46,7 +46,9 @@ Trong trò chơi:
 
 - Màn chơi sẽ kết thúc khi số máu nhân vật trở về 0, khi điểm số hiện tại cao hơn điểm số trong lịch sử điểm ta sẽ được ghi danh. Sau khi ghi danh bấm Enter để trở lại màn hình chính.
 
-( link youtube : https://www.youtube.com/watch?v=7G8WVOmEgXA)
+( link youtube : https://www.youtube.com/watch?v=7G8WVOmEgXA).
+
+(NGUỒN THAM KHẢO: parallelrealities.co.uk, một vài lỗi nhỏ được tra cứu trên stackoverflow,...).
 
 ## 3. Phân công công việc nhóm:
 
